@@ -29,7 +29,7 @@ const baselineStore = [
 const configStore = [
     {
         id : 'DA0524CF-3073-4346-ACDA-F5816650FE8A',
-        url : 'https://www.builder.io',
+        defaultBaseUrl : 'https://www.builder.io',
         pathnames : ['/', '/c/docs/getting-started', '/c/docs/developers'],
         alert : {
             email: 'support@builder.io',
@@ -125,8 +125,7 @@ app.route('/config')
 app.route('/trigger')
     .get(async (req: Request, res: Response) => {
         // query => apiKey, alert, github
-        const {apiKey} = req.query
-        const {category} = req.query
+        const {apiKey, category, url} = req.query
         if(!apiKey){
             res.status(400).json({error: 'apiKey is required'})
             return
@@ -155,10 +154,10 @@ app.route('/trigger')
                 res.status(400).json({error: `category should be a string separated by , and can accept only ${Object.values(PSICategories).join(', ')}`})
                 return
             }
-        }
-        
-        const {url, pathnames} = config
-        const queries = pathnames.map(pathname => setUpQuery(url + pathname, chosenCategory))
+        }        
+        const {defaultBaseUrl, pathnames} = config
+        const baseURL = url || defaultBaseUrl
+        const queries = pathnames.map(pathname => setUpQuery(baseURL + pathname, chosenCategory))
         // trigger the queries
         const data = await Promise.allSettled(queries.map(async query => {
             try{
