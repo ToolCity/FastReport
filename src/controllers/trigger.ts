@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { configStore } from "../store/index.js";
 import {setUpQuery, getScore} from '../services/pagespeed.js'
+import { PSICategories } from "../types/index.js";
 
 export const getTrigger = async (req : Request, res:Response) => {
     const {apiKey, category, url} = req.query
@@ -52,7 +53,7 @@ export const getTrigger = async (req : Request, res:Response) => {
         }
     }))
     const report = data.map((result, index) => {
-        const uri = url + pathnames[index]
+        const uri = baseURL + pathnames[index]
         if(result.status === 'fulfilled'){
             const score = result.value
             return {uri, ...score}

@@ -1,3 +1,7 @@
+import { PSICategories } from "../types/index.js";
+import dotenv from 'dotenv'
+dotenv.config()
+
 const pageSpeedAPIKey = process.env.PSI_API_KEY
 const defaultCategory = [PSICategories.PERFORMANCE]
 
