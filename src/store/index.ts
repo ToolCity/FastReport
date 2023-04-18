@@ -1,9 +1,31 @@
 export const baselineStore = [
     {
         id : 'DA0524CF-3073-4346-ACDA-F5816650FE8A',        
-        performance : 0.9,
-        accessibility : 0.9,
-        best_practices : 0.9,
+        pathnames : [
+            {
+                pathname : '/',
+                baseline : {
+                    performance : 0.9,
+                    seo : 0.9
+                }
+            },
+            {
+                pathname : '/c/docs/getting-started',
+                baseline : {
+                    performance : 0.75,
+                    seo : 0.8,
+                    accessibility : undefined,
+                    'best-practices' : undefined
+                }
+            },
+            {
+                pathname : '/c/docs/developers',
+                baseline : {
+                    performance : 0.75,
+                    seo : 0.8
+                }
+            }
+        ]
     }
 ]
 

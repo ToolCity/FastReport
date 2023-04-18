@@ -10,6 +10,7 @@ app.use(express.urlencoded({extended: true}));
 
 app.use('/api', routes)
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}.`)
 })
+server.setTimeout(1000*60*2)

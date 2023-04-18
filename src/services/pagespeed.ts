@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 const pageSpeedAPIKey = process.env.PSI_API_KEY
-const defaultCategory = [PSICategories.PERFORMANCE]
+export const defaultCategory = [PSICategories.PERFORMANCE]
 
 export const setUpQuery = (url:string, category: PSICategories[] = defaultCategory) => {
     const api = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed';
