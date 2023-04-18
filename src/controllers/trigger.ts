@@ -35,7 +35,10 @@ export const getTrigger = async (req : Request, res:Response) => {
         }
     }        
     const {defaultBaseUrl, pathnames} = config
-    const baseURL = url || defaultBaseUrl
+    let baseURL:string = url?.toString() || defaultBaseUrl
+    if(baseURL.endsWith('/')){
+        baseURL = baseURL.slice(0, baseURL.length - 1)
+    }
     const queries = pathnames.map(pathname => setUpQuery(baseURL + pathname, chosenCategory))
     // trigger the queries
     const data = await Promise.allSettled(queries.map(async query => {
