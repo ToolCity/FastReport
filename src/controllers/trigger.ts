@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { baselineStore, configStore } from "../store/index.js";
 import {setUpQuery, getScore, defaultCategory} from '../services/pagespeed.js'
 import { PSICategories } from "../types/index.js";
+import { compareReportWithBaseline } from "../services/baseline.js";
 
 export const getTrigger = async (req : Request, res:Response) => {
     const {apiKey, category} = req.query
@@ -9,8 +10,7 @@ export const getTrigger = async (req : Request, res:Response) => {
         res.status(400).json({error: 'apiKey is required'})
         return
     }
-    const config = configStore.find(config => config.id === apiKey)
-    const baseline = baselineStore.find(baseline => baseline.id === apiKey)
+    const config = configStore.find(config => config.id === apiKey.toString())
     if(!config){
         res.status(404).json({error: 'config not found'})
         return
@@ -62,44 +62,6 @@ export const getTrigger = async (req : Request, res:Response) => {
             return {uri, error: result.reason.message, failed: true}
         }
     })
-      // compare the score with the baseline config for the particular URL
-      // get the baseline for this apiKEY and compare the baseline vs the score for each pathname.
-      // return the result as above the baseline, or below (alert!) | baseline not found
-    if(!baseline){
-        res.json({report, result:'baseline config not found, generate one by /POST to /baseline'})
-        return
-    }
-    let result: Record<string, any> = {}
-    report.forEach((data) => {
-        if(data.failed){
-            result[data.uri] = 'Failed to fetch lighthouse score and baseline comparision'
-        }else{
-            const baselineConfig = baseline.pathnames.find((bs) => defaultBaseUrl + bs.pathname === data.uri)
-            if(!baselineConfig){
-                result[data.uri] = 'Baseline config is not defined for this URL, please generate one by a POST request on /baseline'
-            }else{
-               chosenCategory.forEach((category) => {
-                    if(baselineConfig.baseline[category]){
-                        const baselineScore = baselineConfig.baseline[category]
-                        // @ts-ignore
-                        if(data[category]){
-                            // @ts-ignore
-                            const belowBaseline = data[category].score < baselineScore 
-                            result[data.uri] = {
-                                ...result[data.uri],
-                                [category] : belowBaseline ?  `Alert: Lighthouse score is less than baseline! baseline for ${category} : ${baselineScore}` : 'Above the baseline 🎉'
-                            }
-                        }
-                    }else{
-                        result[data.uri] = {
-                            ...result[data.uri],
-                            [category] : 'Baseline config does not exist for this metric on this particular URL'
-                        }
-                    }
-               })
-            }
-        }
-    })
-
+    const result = compareReportWithBaseline(report, apiKey.toString(), chosenCategory, defaultBaseUrl)
     res.json({result, report});
 }
