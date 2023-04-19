@@ -35,7 +35,7 @@ export const configStore = [
         defaultBaseUrl : 'https://www.builder.io',
         pathnames : ['/', '/c/docs/getting-started', '/c/docs/developers'],
         alert : {
-            email: 'support@builder.io',
+            email: 'akshat@builder.io',
         }
     }
 ]
