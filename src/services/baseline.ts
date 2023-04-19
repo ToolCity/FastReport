@@ -39,6 +39,8 @@ export const compareReportWithBaseline = (report:Record<string, any>, apiKey:str
                                 ...result[data.uri],
                                 [category] : {
                                     message: belowBaseline ?  `Alert: Lighthouse score is less than baseline! baseline for ${category} : ${baselineScore}` : 'Above the baseline 🎉',
+                                    score : data[category].score,
+                                    baseline : baselineScore,
                                     alertRequired : belowBaseline
                                 }
                             }
