@@ -7,7 +7,7 @@ export const getBaselineService = (apiKey: string) => {
 }
 
 export const compareReportWithBaseline = (report:Record<string, any>, apiKey:string, chosenCategory: PSICategories[], defaultBaseUrl: string) => {
-    const baseline = baselineStore.find(baseline => baseline.id === apiKey)
+    const baseline = getBaselineService(apiKey)
     if(!baseline){
         return {
             result : 'baseline config not found, generate one by /POST to /baseline'
@@ -33,6 +33,7 @@ export const compareReportWithBaseline = (report:Record<string, any>, apiKey:str
                                 ...result[data.uri],
                                 [category] : belowBaseline ?  `Alert: Lighthouse score is less than baseline! baseline for ${category} : ${baselineScore}` : 'Above the baseline 🎉'
                             }
+                            // TODO: Add some bool to specify alert is required, which will be handled in route controller
                         }
                     }else{
                         result[data.uri] = {
