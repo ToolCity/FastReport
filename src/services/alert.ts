@@ -23,7 +23,7 @@ const generateHTMLReport = (result:Record<string, any>) => {
                 ${
                     scores.map((score, index) => {
                         return (
-                            `<td>${score}</td>
+                            `<td class=${score < baselines[index] ? 'red-color' : 'green-color'}>${score}</td>
                             <td>${baselines[index]}</td>`
                         )
                     })
@@ -69,12 +69,12 @@ const generateHTMLReport = (result:Record<string, any>) => {
             <body>
                 <div>
                     <h2>Your lighthouse performance report!</h2>
-                    <table>
+                    <table width="100%">
                         <thead>
                             ${tableHeader}
                         </thead>
                         <tbody>
-                            ${tableRows.join('')}
+                            ${tableRows.join('\n')}
                         </tbody>
                     </table>
                 </div>
