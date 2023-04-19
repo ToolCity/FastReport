@@ -3,6 +3,7 @@ import { baselineStore, configStore } from "../store/index.js";
 import {setUpQuery, getScore, defaultCategory} from '../services/pagespeed.js'
 import { PSICategories } from "../types/index.js";
 import { compareReportWithBaseline } from "../services/baseline.js";
+import { sendAlertMail } from "../services/alert.js";
 
 export const getTrigger = async (req : Request, res:Response) => {
     const {apiKey, category} = req.query
@@ -63,5 +64,6 @@ export const getTrigger = async (req : Request, res:Response) => {
         }
     })
     const result = compareReportWithBaseline(report, apiKey.toString(), chosenCategory, defaultBaseUrl)
-    res.json({result, report});
+    const alertStatus = await sendAlertMail(apiKey.toString(), result)
+    res.json({result, report, alertStatus});
 }
