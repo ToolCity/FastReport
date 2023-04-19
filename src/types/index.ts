@@ -5,3 +5,8 @@ export enum PSICategories {
     SEO = 'seo',
 }
 
+
+export enum PSIStrategy{
+    MOBILE = 'mobile',
+    DESKTOP = 'desktop'
+}

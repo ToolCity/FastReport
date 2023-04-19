@@ -1,16 +1,17 @@
-import { PSICategories } from "../types/index.js";
+import { PSICategories, PSIStrategy } from "../types/index.js";
 import dotenv from 'dotenv'
 dotenv.config()
 
 const pageSpeedAPIKey = process.env.PSI_API_KEY
 export const defaultCategory = [PSICategories.PERFORMANCE]
 
-export const setUpQuery = (url:string, category: PSICategories[] = defaultCategory) => {
+export const setUpQuery = (url:string, category: PSICategories[] = defaultCategory, strategy : PSIStrategy = PSIStrategy.DESKTOP) => {
     const api = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed';
     const parameters: Record<string, any> = {
       url,
       key: pageSpeedAPIKey,
-      category
+      category,
+      strategy
     };
     let query_string = ''
     for(let key in parameters){
