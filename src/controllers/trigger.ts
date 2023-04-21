@@ -4,13 +4,14 @@ import {
   getScore,
   defaultCategory,
   setUpLighthouseQueryString,
+  defaultStrategy,
 } from "../services/pagespeed.js";
-import { PSICategories } from "../types/index.js";
+import { PSICategories, PSIStrategy } from "../types/index.js";
 import { compareReportWithBaseline } from "../services/baseline.js";
 import { sendAlertMail } from "../services/alert.js";
 
 export const getTrigger = async (req: Request, res: Response) => {
-  const { apiKey, category } = req.query;
+  const { apiKey, category, strategy } = req.query;
   if (!apiKey) {
     res.status(400).json({ error: "apiKey is required" });
     return;
@@ -48,10 +49,19 @@ export const getTrigger = async (req: Request, res: Response) => {
       return;
     }
   }
+
+  let chosenStartegy: PSIStrategy = defaultStrategy;
+  if (
+    strategy &&
+    Object.values(PSIStrategy).includes(strategy as PSIStrategy)
+  ) {
+    chosenStartegy = strategy as PSIStrategy;
+  }
+
   const { urls } = config;
 
   const queries = urls.map((url) =>
-    setUpLighthouseQueryString(url, chosenCategory)
+    setUpLighthouseQueryString(url, chosenCategory, chosenStartegy)
   );
   // trigger the queries
   const data = await Promise.allSettled(
@@ -82,6 +92,10 @@ export const getTrigger = async (req: Request, res: Response) => {
     apiKey.toString(),
     chosenCategory
   );
-  const alertStatus = await sendAlertMail(apiKey.toString(), result);
+  const alertStatus = await sendAlertMail(
+    apiKey.toString(),
+    result,
+    chosenStartegy
+  );
   res.json({ result, report, alertStatus });
 };

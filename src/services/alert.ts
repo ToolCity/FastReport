@@ -1,5 +1,7 @@
 import { transporter } from "../config/nodemailer.js";
+import { PSIStrategy } from "../types/index.js";
 import { getConfigService } from "./config.js";
+import { defaultStrategy } from "./pagespeed.js";
 
 const getStyles = () =>
   `<style>
@@ -31,14 +33,17 @@ const generateDataRows = (
 };
 const generateTableHeader = (categories: string[]) => {
   return `<tr>
-                <th>URL</th>
+            <th>URL</th>
                 ${categories.map((category) => {
                   return `<th colspan="2">${category}</th>`;
                 })}
             </tr>`;
 };
 
-const generateHTMLReport = (result: Record<string, any>) => {
+const generateHTMLReport = (
+  result: Record<string, any>,
+  chosenStartegy: PSIStrategy = defaultStrategy
+) => {
   const styles = getStyles();
   const tableRows = [];
   const categories: Set<string> = new Set();
@@ -46,6 +51,7 @@ const generateHTMLReport = (result: Record<string, any>) => {
     const scores = [];
     const baselines = [];
     for (const category in result[url]) {
+      if (result[url].failed) continue;
       categories.add(category);
       scores.push(result[url][category].score);
       baselines.push(result[url][category].baselineScore);
@@ -61,6 +67,7 @@ const generateHTMLReport = (result: Record<string, any>) => {
             <body>
                 <div>
                     <h2>Your lighthouse performance report!</h2>
+                    <h4>Strategy : ${chosenStartegy}</h4>
                     <table width="100%">
                         <thead>
                             ${tableHeader}
@@ -78,6 +85,7 @@ const generateHTMLReport = (result: Record<string, any>) => {
 export const sendAlertMail = async (
   apiKey: string,
   result: Record<string, any>,
+  chosenStartegy: PSIStrategy = defaultStrategy,
   onlyAlertIfBelowBaseline: boolean = false
 ) => {
   try {
@@ -118,9 +126,9 @@ export const sendAlertMail = async (
     }
     const mailOptions = {
       to: email,
-      html: generateHTMLReport(alertResults),
+      html: generateHTMLReport(alertResults, chosenStartegy),
     };
-    let info = await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
     return {
       status: `Alert email sent to ${email} with message id : ${info.messageId}`,
     };

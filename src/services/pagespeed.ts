@@ -4,11 +4,12 @@ dotenv.config();
 
 const pageSpeedAPIKey = process.env.PSI_API_KEY;
 export const defaultCategory = [PSICategories.PERFORMANCE];
+export const defaultStrategy = PSIStrategy.DESKTOP;
 
 export const setUpLighthouseQueryString = (
   url: string,
   category: PSICategories[] = defaultCategory,
-  strategy: PSIStrategy = PSIStrategy.DESKTOP
+  strategy: PSIStrategy = defaultStrategy
 ) => {
   const api = "https://www.googleapis.com/pagespeedonline/v5/runPagespeed";
   const parameters: Record<string, any> = {
