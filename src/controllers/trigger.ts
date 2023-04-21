@@ -7,7 +7,7 @@ import {
   defaultStrategy,
 } from '../services/pagespeed';
 import { PSICategories, PSIStrategy } from '../types/index';
-import { compareReportWithBaseline } from '../services/baseline';
+import { compareReportWithBaseline, getBaselineService } from '../services/baseline';
 import { sendAlertMail } from '../services/alert';
 
 export const getTrigger = async (req: Request, res: Response) => {
@@ -77,7 +77,9 @@ export const getTrigger = async (req: Request, res: Response) => {
       return { url, error: result.reason.message, failed: true };
     }
   });
-  const result = compareReportWithBaseline(report, apiKey.toString(), chosenCategory);
+
+  const baseline = getBaselineService(apiKey.toString());
+  const result = compareReportWithBaseline(report, baseline, chosenCategory);
   const alertStatus = await sendAlertMail(apiKey.toString(), result, chosenStartegy);
   res.json({ result, report, alertStatus });
 };
