@@ -1,6 +1,5 @@
 import { transporter } from '../config/nodemailer';
 import { PSIStrategy } from '../types';
-import { getConfigService } from './config';
 import { defaultStrategy } from './pagespeed';
 
 const getStyles = () =>
@@ -41,11 +40,11 @@ const generateHTMLReport = (
   chosenStartegy: PSIStrategy = defaultStrategy
 ) => {
   const styles = getStyles();
-  const tableRows = [];
+  const tableRows: string[] = [];
   const categories: Set<string> = new Set();
   for (const url in result) {
-    const scores = [];
-    const baselines = [];
+    const scores: number[] = [];
+    const baselines: number[] = [];
     for (const category in result[url]) {
       if (result[url].failed) continue;
       categories.add(category);
