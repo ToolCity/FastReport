@@ -1,6 +1,6 @@
-import { describe, it, expect } from '@jest/globals';
-import { setUpLighthouseQueryString } from '../pagespeed.js';
-import { PSICategories, PSIStrategy } from '../../types/index.js';
+import { describe, it, expect, beforeAll } from '@jest/globals';
+import { setUpLighthouseQueryString } from '../pagespeed';
+import { PSICategories, PSIStrategy } from '../../types';
 
 describe('unit tests for pagespeed services', () => {
   describe('testing setUpLighthouseQueryString', () => {

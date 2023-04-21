@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getConfigService } from '../services/config.js';
+import { getConfigService } from '../services/config';
 
 export const getConfig = (req: Request, res: Response) => {
   const { apiKey } = req.query;

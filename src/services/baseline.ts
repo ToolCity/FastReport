@@ -1,5 +1,5 @@
-import { baselineStore } from '../store/index.js';
-import { PSICategories } from '../types/index.js';
+import { baselineStore } from '../store';
+import { PSICategories } from '../types';
 
 export const getBaselineService = (apiKey: string) => {
   const baseline = baselineStore.find(baseline => baseline.id === apiKey);

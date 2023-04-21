@@ -1,7 +1,7 @@
-import { transporter } from '../config/nodemailer.js';
-import { PSIStrategy } from '../types/index.js';
-import { getConfigService } from './config.js';
-import { defaultStrategy } from './pagespeed.js';
+import { transporter } from '../config/nodemailer';
+import { PSIStrategy } from '../types';
+import { getConfigService } from './config';
+import { defaultStrategy } from './pagespeed';
 
 const getStyles = () =>
   `<style>

@@ -1,4 +1,4 @@
-import { PSICategories, PSIStrategy } from '../types/index.js';
+import { PSICategories, PSIStrategy } from '../types';
 import dotenv from 'dotenv';
 dotenv.config();
 
