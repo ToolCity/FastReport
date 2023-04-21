@@ -8,8 +8,8 @@
     "watch": "nodemon -e ts -w ./src -x npm run watch:serve",
     "watch:serve": "ts-node-esm src/index.ts",
     "fmt": "yarn prettier --write .",
-    "eslint": "eslint './**/*.{ts,tsx}'",
-    "eslint:fix": "yarn run eslint --fix",
+    "lint": "eslint './**/*.{ts,tsx}'",
+    "lint:fix": "yarn run eslint --fix",
     "build": "tsc"
   },
   "keywords": [],

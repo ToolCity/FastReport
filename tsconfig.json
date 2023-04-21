@@ -1,11 +1,6 @@
 {
   "include": ["./src/**/*"],
-  "exclude": [
-    "node_modules",
-    "test",
-    "**/*.spec.ts",
-    "**/*.test.ts",
-  ],
+  "exclude": ["node_modules", "test", "**/*.spec.ts", "**/*.test.ts"],
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
     /* Projects */
@@ -40,14 +35,16 @@
     "typeRoots": [
       "./src/types/*.d.ts"
     ] /* Specify multiple folders that act like './node_modules/@types'. */,
-    "types": ["jest"],                     /* Specify type package names to be included without being referenced in a source file. */
+    "types": [
+      "jest"
+    ] /* Specify type package names to be included without being referenced in a source file. */,
     // "allowUmdGlobalAccess": true,                     /* Allow accessing UMD globals from modules. */
     // "moduleSuffixes": [],                             /* List of file name suffixes to search when resolving a module. */
     // "resolveJsonModule": true,                        /* Enable importing .json files. */
     // "noResolve": true,                                /* Disallow 'import's, 'require's or '<reference>'s from expanding the number of files TypeScript should add to a project. */
 
     /* JavaScript Support */
-    "allowJs": true,                                  /* Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files. */
+    "allowJs": true /* Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files. */,
     // "checkJs": true,                                  /* Enable error reporting in type-checked JavaScript files. */
     // "maxNodeModuleJsDepth": 1,                        /* Specify the maximum folder depth used for checking JavaScript files from 'node_modules'. Only applicable with 'allowJs'. */
 
