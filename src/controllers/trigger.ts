@@ -54,7 +54,7 @@ export const getTrigger = async (req: Request, res: Response) => {
     chosenStartegy = strategy as PSIStrategy;
   }
 
-  const { urls } = config;
+  const { urls, alertConfig } = config;
 
   const queries = urls.map(url => setUpLighthouseQueryString(url, chosenCategory, chosenStartegy));
   // trigger the queries
@@ -80,6 +80,6 @@ export const getTrigger = async (req: Request, res: Response) => {
 
   const baseline = getBaselineService(apiKey.toString());
   const result = compareReportWithBaseline(report, baseline, chosenCategory);
-  const alertStatus = await sendAlertMail(apiKey.toString(), result, chosenStartegy);
+  const alertStatus = await sendAlertMail(alertConfig, result, chosenStartegy);
   res.json({ result, report, alertStatus });
 };
