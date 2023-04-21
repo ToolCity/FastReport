@@ -1,6 +1,6 @@
-import { configStore } from "../store/index.js"
+import { configStore } from '../store/index.js';
 
-export const getConfigService = (apiKey:string) => {
-    const config = configStore.find(config => config.id === apiKey)
-    return config
-}
+export const getConfigService = (apiKey: string) => {
+  const config = configStore.find(config => config.id === apiKey);
+  return config;
+};

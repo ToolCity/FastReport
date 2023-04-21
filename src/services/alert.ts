@@ -1,67 +1,61 @@
-import { transporter } from "../config/nodemailer.js";
-import { getConfigService } from "./config.js";
+import { transporter } from '../config/nodemailer.js';
+import { PSIStrategy } from '../types/index.js';
+import { getConfigService } from './config.js';
+import { defaultStrategy } from './pagespeed.js';
 
-const generateHTMLReport = (result:Record<string, any>) => {
-    const styles = `
-        <style>
-            table, th, td {
-                border: 1px solid black;
-                border-collapse: collapse;
-            }
-            .red-color { 
-                color : red;
-            }
-            .green-color {
-                color : green;
-            }
-        </style>`
-    
-    const generateDataRows = (uri:string, scores: Number[], baselines: Number[]) => {
-        return (
-            `<tr>
-                <td>${uri}</td>
-                ${
-                    scores.map((score, index) => {
-                        return (
-                            `<td class=${score < baselines[index] ? 'red-color' : 'green-color'}>${score}</td>
-                            <td>${baselines[index]}</td>`
-                        )
-                    })
-                }
-            </tr>`
-        )
-    }
-    const generateTableHeader = (categories:string[]) => {
-        return (
-            `<tr>
-                <th>URL</th>
-                ${
-                    categories.map((category) => {
-                        return (
-                            `<th colspan="2">${category}</th>`
-                        )
-                    })
-                }
-            </tr>`
-        )
-    }
-    const tableRows = []
-    // extract data from result 
-    let categories:Set<string> = new Set()
-    for(let uri in result){
-        // get uri and category for each uri
-        let scores = []
-        let baselines = []
-        for(let category in result[uri]){
-            categories.add(category)
-            scores.push(result[uri][category].score)
-            baselines.push(result[uri][category].baseline)
+const getStyles = () =>
+  `<style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
         }
-        tableRows.push(generateDataRows(uri, scores, baselines))
+        .red-color { 
+            color : red;
+        }
+        .green-color {
+            color : green;
+        }
+    </style>`;
+const generateDataRows = (url: string, scores: number[], baselines: number[]) => {
+  return `<tr>
+                <td>${url}</td>
+                ${scores.map((score, index) => {
+                  return `<td class=${
+                    score < baselines[index] ? 'red-color' : 'green-color'
+                  }>${score}</td>
+                            <td>${baselines[index]}</td>`;
+                })}
+            </tr>`;
+};
+const generateTableHeader = (categories: string[]) => {
+  return `<tr>
+            <th>URL</th>
+                ${categories.map(category => {
+                  return `<th colspan="2">${category}</th>`;
+                })}
+            </tr>`;
+};
+
+const generateHTMLReport = (
+  result: Record<string, any>,
+  chosenStartegy: PSIStrategy = defaultStrategy
+) => {
+  const styles = getStyles();
+  const tableRows = [];
+  const categories: Set<string> = new Set();
+  for (const url in result) {
+    const scores = [];
+    const baselines = [];
+    for (const category in result[url]) {
+      if (result[url].failed) continue;
+      categories.add(category);
+      scores.push(result[url][category].score);
+      baselines.push(result[url][category].baselineScore);
     }
-    const tableHeader = generateTableHeader(Array.from(categories))
-    return (
-        `
+    tableRows.push(generateDataRows(url, scores, baselines));
+  }
+  const tableHeader = generateTableHeader(Array.from(categories));
+  return `
         <html>
             <head>
                 ${styles}
@@ -69,6 +63,7 @@ const generateHTMLReport = (result:Record<string, any>) => {
             <body>
                 <div>
                     <h2>Your lighthouse performance report!</h2>
+                    <h4>Strategy : ${chosenStartegy}</h4>
                     <table width="100%">
                         <thead>
                             ${tableHeader}
@@ -80,61 +75,63 @@ const generateHTMLReport = (result:Record<string, any>) => {
                 </div>
             </body>
         </html>
-        `
-    )
-}
+        `;
+};
 
-export const sendAlertMail = async (apiKey:string, result: Record<string, any>, onlyAlertIfBelowBaseline:boolean = false) => {
-    try{
-        const config = getConfigService(apiKey)
-        if(!config){
-            return {
-                status : 'Error : config not found',
-                failed : true
-            }
-        }
-        const { email } = config.alert
-        if(!email){
-            return {
-                status : 'Error : email not found',
-                failed : true
-            }
-        }
-        let alertResults:Record<string, any> = {}
-        if(onlyAlertIfBelowBaseline) { 
-            for(let uri in result) { 
-                if(result[uri].failed){
-                    continue;
-                }
-                for(let category in result[uri]){
-                    if(result[uri][category].failed){
-                        continue;
-                    }
-                    if(result[uri][category].alertRequired){
-                        // send this in alert
-                        alertResults[uri] = {
-                            ...alertResults[uri],
-                            [category] : result[uri][category]
-                        }
-                    }
-                }
-            }
-        }else{
-            alertResults = result
-        }
-        const mailOptions = {
-            to: email,
-            html: generateHTMLReport(alertResults)
-        }
-        let info = await transporter.sendMail(mailOptions)
-        return {
-            status : `Alert email sent to ${email} with message id : ${info.messageId}`
-        }
-    }catch(e){
-        return {
-            status : `Error : Failed to send alert email, ${(e as Error).message}`,
-            failed : true
-        }
+export const sendAlertMail = async (
+  apiKey: string,
+  result: Record<string, any>,
+  chosenStartegy: PSIStrategy = defaultStrategy,
+  onlyAlertIfBelowBaseline = false
+) => {
+  try {
+    const config = getConfigService(apiKey);
+    if (!config) {
+      return {
+        status: 'Error : config not found',
+        failed: true,
+      };
     }
-    
-}
+    const { email } = config.alertConfig;
+    if (!email) {
+      return {
+        status: 'Error : email not found',
+        failed: true,
+      };
+    }
+    let alertResults: Record<string, any> = {};
+    if (onlyAlertIfBelowBaseline) {
+      for (const url in result) {
+        if (result[url].failed || !result[url].category) {
+          continue;
+        }
+        for (const category in result[url]) {
+          if (result[url][category].failed) {
+            continue;
+          }
+          if (result[url][category].alertRequired) {
+            alertResults[url] = {
+              ...alertResults[url],
+              [category]: result[url][category],
+            };
+          }
+        }
+      }
+    } else {
+      alertResults = result;
+    }
+    const mailOptions = {
+      to: email,
+      html: generateHTMLReport(alertResults, chosenStartegy),
+    };
+    const info = await transporter.sendMail(mailOptions);
+    return {
+      status: `Alert email sent to ${email} with message id : ${info.messageId}`,
+    };
+  } catch (e) {
+    return {
+      status: `Error : Failed to send alert email, ${(e as Error).message}`,
+      failed: true,
+    };
+  }
+};
