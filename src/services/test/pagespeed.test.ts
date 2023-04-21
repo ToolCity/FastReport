@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import { setUpLighthouseQueryString } from './services/pagespeed.js';
+import { setUpLighthouseQueryString } from '../pagespeed.js';
 import { PSICategories, PSIStrategy } from '../../types/index.js';
 
 describe('unit tests for pagespeed services', () => {
