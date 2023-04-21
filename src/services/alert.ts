@@ -1,7 +1,7 @@
-import { transporter } from "../config/nodemailer.js";
-import { PSIStrategy } from "../types/index.js";
-import { getConfigService } from "./config.js";
-import { defaultStrategy } from "./pagespeed.js";
+import { transporter } from '../config/nodemailer.js';
+import { PSIStrategy } from '../types/index.js';
+import { getConfigService } from './config.js';
+import { defaultStrategy } from './pagespeed.js';
 
 const getStyles = () =>
   `<style>
@@ -16,16 +16,12 @@ const getStyles = () =>
             color : green;
         }
     </style>`;
-const generateDataRows = (
-  url: string,
-  scores: Number[],
-  baselines: Number[]
-) => {
+const generateDataRows = (url: string, scores: number[], baselines: number[]) => {
   return `<tr>
                 <td>${url}</td>
                 ${scores.map((score, index) => {
                   return `<td class=${
-                    score < baselines[index] ? "red-color" : "green-color"
+                    score < baselines[index] ? 'red-color' : 'green-color'
                   }>${score}</td>
                             <td>${baselines[index]}</td>`;
                 })}
@@ -34,7 +30,7 @@ const generateDataRows = (
 const generateTableHeader = (categories: string[]) => {
   return `<tr>
             <th>URL</th>
-                ${categories.map((category) => {
+                ${categories.map(category => {
                   return `<th colspan="2">${category}</th>`;
                 })}
             </tr>`;
@@ -73,7 +69,7 @@ const generateHTMLReport = (
                             ${tableHeader}
                         </thead>
                         <tbody>
-                            ${tableRows.join("\n")}
+                            ${tableRows.join('\n')}
                         </tbody>
                     </table>
                 </div>
@@ -86,20 +82,20 @@ export const sendAlertMail = async (
   apiKey: string,
   result: Record<string, any>,
   chosenStartegy: PSIStrategy = defaultStrategy,
-  onlyAlertIfBelowBaseline: boolean = false
+  onlyAlertIfBelowBaseline = false
 ) => {
   try {
     const config = getConfigService(apiKey);
     if (!config) {
       return {
-        status: "Error : config not found",
+        status: 'Error : config not found',
         failed: true,
       };
     }
     const { email } = config.alertConfig;
     if (!email) {
       return {
-        status: "Error : email not found",
+        status: 'Error : email not found',
         failed: true,
       };
     }
