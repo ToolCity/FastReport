@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getBaselineService } from '../services/baseline.js';
+import { getBaselineService } from '../services/baseline';
 
 export const getBaseline = (req: Request, res: Response) => {
   const { apiKey } = req.query;

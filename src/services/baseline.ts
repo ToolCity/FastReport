@@ -1,5 +1,5 @@
-import { baselineStore } from '../store/index.js';
-import { PSICategories } from '../types/index.js';
+import { baselineStore } from '../store';
+import { PSICategories } from '../types';
 
 export const getBaselineService = (apiKey: string) => {
   const baseline = baselineStore.find(baseline => baseline.id === apiKey);
@@ -8,10 +8,9 @@ export const getBaselineService = (apiKey: string) => {
 
 export const compareReportWithBaseline = (
   report: Record<string, any>,
-  apiKey: string,
+  baseline: Record<string, any> | undefined,
   chosenCategory: PSICategories[]
 ) => {
-  const baseline = getBaselineService(apiKey);
   if (!baseline) {
     return {
       result: 'baseline config not found, generate one by /POST to /baseline',
@@ -25,7 +24,7 @@ export const compareReportWithBaseline = (
         failed: true,
       };
     } else {
-      const baselineConfig = baseline.baselineConfig.find(bs => bs.url === data.url);
+      const baselineConfig = baseline.baselineConfig.find((bs: any) => bs.url === data.url);
       if (!baselineConfig) {
         result[data.url] = {
           message:

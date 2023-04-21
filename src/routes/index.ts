@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { getTrigger } from '../controllers/trigger.js';
-import { getBaseline, postBaseline } from '../controllers/baseline.js';
-import { getConfig, patchConfig, postConfig } from '../controllers/config.js';
+import { getTrigger } from '../controllers/trigger';
+import { getBaseline, postBaseline } from '../controllers/baseline';
+import { getConfig, patchConfig, postConfig } from '../controllers/config';
 
 const router = Router();
 

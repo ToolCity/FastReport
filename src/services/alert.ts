@@ -1,7 +1,7 @@
-import { transporter } from '../config/nodemailer.js';
-import { PSIStrategy } from '../types/index.js';
-import { getConfigService } from './config.js';
-import { defaultStrategy } from './pagespeed.js';
+import { transporter } from '../config/nodemailer';
+import { PSIStrategy } from '../types';
+import { getConfigService } from './config';
+import { defaultStrategy } from './pagespeed';
 
 const getStyles = () =>
   `<style>
@@ -79,27 +79,26 @@ const generateHTMLReport = (
 };
 
 export const sendAlertMail = async (
-  apiKey: string,
+  alertConfig: Record<string, any> | undefined,
   result: Record<string, any>,
   chosenStartegy: PSIStrategy = defaultStrategy,
   onlyAlertIfBelowBaseline = false
 ) => {
   try {
-    const config = getConfigService(apiKey);
-    if (!config) {
+    if (!alertConfig) {
       return {
-        status: 'Error : config not found',
+        message: 'Alert config not found, generate one by /POST to /alert',
         failed: true,
       };
     }
-    const { email } = config.alertConfig;
+    const { email } = alertConfig;
     if (!email) {
       return {
-        status: 'Error : email not found',
+        message: 'Email in alertConfig not found, add one by /PATCH to /alert',
         failed: true,
       };
     }
-    let alertResults: Record<string, any> = {};
+    let alertResults: Record<string, any> | null = null;
     if (onlyAlertIfBelowBaseline) {
       for (const url in result) {
         if (result[url].failed || !result[url].category) {
@@ -110,6 +109,9 @@ export const sendAlertMail = async (
             continue;
           }
           if (result[url][category].alertRequired) {
+            if (!alertResults) {
+              alertResults = {};
+            }
             alertResults[url] = {
               ...alertResults[url],
               [category]: result[url][category],
@@ -120,17 +122,23 @@ export const sendAlertMail = async (
     } else {
       alertResults = result;
     }
+    if (!alertResults) {
+      return {
+        message: `No alert required for this report`,
+      };
+    }
     const mailOptions = {
       to: email,
       html: generateHTMLReport(alertResults, chosenStartegy),
     };
+
     const info = await transporter.sendMail(mailOptions);
     return {
-      status: `Alert email sent to ${email} with message id : ${info.messageId}`,
+      message: `Alert email sent to ${email} with message id : ${info.messageId}`,
     };
   } catch (e) {
     return {
-      status: `Error : Failed to send alert email, ${(e as Error).message}`,
+      message: `Error : Failed to send alert email, ${(e as Error).message}`,
       failed: true,
     };
   }

@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
-import { configStore } from '../store/index.js';
+import { configStore } from '../store/index';
 import {
   getScore,
   defaultCategory,
   setUpLighthouseQueryString,
   defaultStrategy,
-} from '../services/pagespeed.js';
-import { PSICategories, PSIStrategy } from '../types/index.js';
-import { compareReportWithBaseline } from '../services/baseline.js';
-import { sendAlertMail } from '../services/alert.js';
+} from '../services/pagespeed';
+import { PSICategories, PSIStrategy } from '../types/index';
+import { compareReportWithBaseline, getBaselineService } from '../services/baseline';
+import { sendAlertMail } from '../services/alert';
 
 export const getTrigger = async (req: Request, res: Response) => {
   const { apiKey, category, strategy } = req.query;
@@ -54,7 +54,7 @@ export const getTrigger = async (req: Request, res: Response) => {
     chosenStartegy = strategy as PSIStrategy;
   }
 
-  const { urls } = config;
+  const { urls, alertConfig } = config;
 
   const queries = urls.map(url => setUpLighthouseQueryString(url, chosenCategory, chosenStartegy));
   // trigger the queries
@@ -77,7 +77,9 @@ export const getTrigger = async (req: Request, res: Response) => {
       return { url, error: result.reason.message, failed: true };
     }
   });
-  const result = compareReportWithBaseline(report, apiKey.toString(), chosenCategory);
-  const alertStatus = await sendAlertMail(apiKey.toString(), result, chosenStartegy);
+
+  const baseline = getBaselineService(apiKey.toString());
+  const result = compareReportWithBaseline(report, baseline, chosenCategory);
+  const alertStatus = await sendAlertMail(alertConfig, result, chosenStartegy);
   res.json({ result, report, alertStatus });
 };
