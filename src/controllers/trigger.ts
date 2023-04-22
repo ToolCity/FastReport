@@ -8,7 +8,8 @@ import {
 } from '../services/pagespeed';
 import { PSICategories, PSIStrategy } from '../types/index';
 import { compareReportWithBaseline, getBaselineService } from '../services/baseline';
-import { sendAlertMail } from '../services/alert';
+import { sendAlertMail } from '../services/alert/email';
+import { sendAlertToSlackChannel } from '../services/alert/slack';
 
 export const getTrigger = async (req: Request, res: Response) => {
   const { apiKey, category, strategy } = req.query;
@@ -80,6 +81,14 @@ export const getTrigger = async (req: Request, res: Response) => {
 
   const baseline = getBaselineService(apiKey.toString());
   const result = compareReportWithBaseline(report, baseline, chosenCategory);
-  const alertStatus = await sendAlertMail(alertConfig, result, chosenStartegy);
-  res.json({ result, report, alertStatus });
+  const emailAlertStatus = await sendAlertMail(alertConfig, result, chosenStartegy, true);
+  const slackAlertStatus = await sendAlertToSlackChannel(alertConfig, result, chosenStartegy, true);
+  res.json({
+    result,
+    report,
+    alertStatus: {
+      email: emailAlertStatus,
+      slack: slackAlertStatus,
+    },
+  });
 };

@@ -1,6 +1,6 @@
-import { transporter } from '../config/nodemailer';
-import { PSIStrategy } from '../types';
-import { defaultStrategy } from './pagespeed';
+import { transporter } from '../../config/nodemailer';
+import { PSIStrategy } from '../../types';
+import { defaultStrategy } from '../pagespeed';
 
 const getStyles = () =>
   `<style>
@@ -83,6 +83,7 @@ export const sendAlertMail = async (
   chosenStartegy: PSIStrategy = defaultStrategy,
   onlyAlertIfBelowBaseline = false
 ) => {
+  console.log(onlyAlertIfBelowBaseline);
   try {
     if (!alertConfig) {
       return {
@@ -121,6 +122,7 @@ export const sendAlertMail = async (
     } else {
       alertResults = result;
     }
+    console.log(alertResults);
     if (!alertResults) {
       return {
         message: `No alert required for this report`,

@@ -37,6 +37,7 @@ export const configStore = [
     ],
     alertConfig: {
       email: 'akshat@builder.io',
+      slack: 'https://hooks.slack.com/services/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',
     },
   },
 ];
