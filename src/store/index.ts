@@ -36,7 +36,14 @@ export const configStore = [
       'https://www.builder.io/c/docs/developers',
     ],
     alertConfig: {
-      email: 'akshat@builder.io',
+      email: {
+        id: 'akshat@builder.io',
+        enabled: true,
+      },
+      slack: {
+        id: '',
+        enabled: false,
+      },
     },
   },
 ];
