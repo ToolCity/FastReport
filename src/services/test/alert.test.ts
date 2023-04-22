@@ -38,6 +38,14 @@ describe('unit tests for alert services', () => {
         message: `No alert required for this report`,
       });
     });
+    it('it should not send alert if email is not enabled in alertConfig', async () => {
+      const alertConfig = defaultAlertConfig;
+      alertConfig.email.enabled = false;
+      const result = await sendAlertMail(alertConfig, {});
+      expect(result).toEqual({
+        message: 'Email alert not enabled in config',
+      });
+    });
   });
   describe('testing slack alerting service', () => {
     it('it should return error if alertConfig is not defined', async () => {
@@ -65,6 +73,14 @@ describe('unit tests for alert services', () => {
       );
       expect(result).toEqual({
         message: `No alert required for this report`,
+      });
+    });
+    it('it should not send alert if slack is not enabled in alertConfig', async () => {
+      const alertConfig = defaultAlertConfig;
+      alertConfig.slack.enabled = false;
+      const result = await sendAlertToSlackChannel(alertConfig, {});
+      expect(result).toEqual({
+        message: 'Slack alert not enabled in config',
       });
     });
   });
