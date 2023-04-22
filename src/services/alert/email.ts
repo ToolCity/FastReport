@@ -1,6 +1,6 @@
-import { transporter } from '../config/nodemailer';
-import { PSIStrategy } from '../types';
-import { defaultStrategy } from './pagespeed';
+import { transporter } from '../../config/nodemailer';
+import { PSIStrategy } from '../../types';
+import { defaultStrategy } from '../pagespeed';
 
 const getStyles = () =>
   `<style>
@@ -100,7 +100,7 @@ export const sendAlertMail = async (
     let alertResults: Record<string, any> | null = null;
     if (onlyAlertIfBelowBaseline) {
       for (const url in result) {
-        if (result[url].failed || !result[url].category) {
+        if (result[url].failed) {
           continue;
         }
         for (const category in result[url]) {

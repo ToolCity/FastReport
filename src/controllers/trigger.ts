@@ -8,7 +8,8 @@ import {
 } from '../services/pagespeed';
 import { PSICategories, PSIStrategy } from '../types/index';
 import { compareReportWithBaseline, getBaselineService } from '../services/baseline';
-import { sendAlertMail } from '../services/alert';
+import { sendAlertMail } from '../services/alert/email';
+import { sendAlertToSlackChannel } from '../services/alert/slack';
 
 export const getTrigger = async (req: Request, res: Response) => {
   const { apiKey, category, strategy } = req.query;
@@ -78,8 +79,27 @@ export const getTrigger = async (req: Request, res: Response) => {
     }
   });
 
+  const onlyAlertIfBelowBaseline = true; // set this to true if you want to send alert only if the score is below the baseline
   const baseline = getBaselineService(apiKey.toString());
   const result = compareReportWithBaseline(report, baseline, chosenCategory);
-  const alertStatus = await sendAlertMail(alertConfig, result, chosenStartegy);
-  res.json({ result, report, alertStatus });
+  const emailAlertStatus = await sendAlertMail(
+    alertConfig,
+    result,
+    chosenStartegy,
+    onlyAlertIfBelowBaseline
+  );
+  const slackAlertStatus = await sendAlertToSlackChannel(
+    alertConfig,
+    result,
+    chosenStartegy,
+    onlyAlertIfBelowBaseline
+  );
+  res.json({
+    result,
+    report,
+    alertStatus: {
+      email: emailAlertStatus,
+      slack: slackAlertStatus,
+    },
+  });
 };
