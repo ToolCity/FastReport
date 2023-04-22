@@ -83,7 +83,6 @@ export const sendAlertMail = async (
   chosenStartegy: PSIStrategy = defaultStrategy,
   onlyAlertIfBelowBaseline = false
 ) => {
-  console.log(onlyAlertIfBelowBaseline);
   try {
     if (!alertConfig) {
       return {
@@ -101,7 +100,7 @@ export const sendAlertMail = async (
     let alertResults: Record<string, any> | null = null;
     if (onlyAlertIfBelowBaseline) {
       for (const url in result) {
-        if (result[url].failed || !result[url].category) {
+        if (result[url].failed) {
           continue;
         }
         for (const category in result[url]) {
@@ -122,7 +121,6 @@ export const sendAlertMail = async (
     } else {
       alertResults = result;
     }
-    console.log(alertResults);
     if (!alertResults) {
       return {
         message: `No alert required for this report`,

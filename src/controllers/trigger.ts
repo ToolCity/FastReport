@@ -79,10 +79,21 @@ export const getTrigger = async (req: Request, res: Response) => {
     }
   });
 
+  const onlyAlertIfBelowBaseline = true; // set this to true if you want to send alert only if the score is below the baseline
   const baseline = getBaselineService(apiKey.toString());
   const result = compareReportWithBaseline(report, baseline, chosenCategory);
-  const emailAlertStatus = await sendAlertMail(alertConfig, result, chosenStartegy, true);
-  const slackAlertStatus = await sendAlertToSlackChannel(alertConfig, result, chosenStartegy, true);
+  const emailAlertStatus = await sendAlertMail(
+    alertConfig,
+    result,
+    chosenStartegy,
+    onlyAlertIfBelowBaseline
+  );
+  const slackAlertStatus = await sendAlertToSlackChannel(
+    alertConfig,
+    result,
+    chosenStartegy,
+    onlyAlertIfBelowBaseline
+  );
   res.json({
     result,
     report,
