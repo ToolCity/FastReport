@@ -54,6 +54,7 @@ export const generateSectionForDevice = (
       }
     }
   }
+  if (sections.length === 0) return null;
   sections.unshift(generateHeadingSection(device));
   return sections;
 };
@@ -80,6 +81,11 @@ export const sendAlertToSlackChannel = async (
     };
   }
   try {
+    const sections = generateSectionForDevice(result, strategy, onlyAlertIfBelowBaseline);
+    if (!sections)
+      return {
+        message: `No alert required for this report`,
+      };
     const response = await fetch(slack, {
       method: 'POST',
       headers: {
@@ -94,7 +100,7 @@ export const sendAlertToSlackChannel = async (
               text: `*LIGHTHOUSE SCORE REPORT : ${new Date().toDateString()}*\n\n`,
             },
           },
-          ...generateSectionForDevice(result, strategy, onlyAlertIfBelowBaseline),
+          ...sections,
         ],
       }),
     });
