@@ -91,7 +91,12 @@ export const sendAlertMail = async (
       };
     }
     const { email } = alertConfig;
-    if (!email) {
+    if (!email.enabled) {
+      return {
+        message: 'Email alert not enabled in config',
+      };
+    }
+    if (!email.id) {
       return {
         message: 'Email in alertConfig not found, add one by /PATCH to /alert',
         failed: true,
@@ -127,13 +132,13 @@ export const sendAlertMail = async (
       };
     }
     const mailOptions = {
-      to: email,
+      to: email.id,
       html: generateHTMLReport(alertResults, chosenStartegy),
     };
 
     const info = await transporter.sendMail(mailOptions);
     return {
-      message: `Alert email sent to ${email} with message id : ${info.messageId}`,
+      message: `Alert email sent to ${email.id} with message id : ${info.messageId}`,
     };
   } catch (e) {
     return {

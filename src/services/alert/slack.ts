@@ -74,7 +74,12 @@ export const sendAlertToSlackChannel = async (
     };
   }
   const { slack } = alertConfig;
-  if (!slack) {
+  if (!slack.enabled) {
+    return {
+      message: 'Slack alert not enabled in config',
+    };
+  }
+  if (!slack.id) {
     return {
       message: 'Slack Channel in alertConfig not found, add one by /PATCH to /alert',
       failed: true,
@@ -86,7 +91,7 @@ export const sendAlertToSlackChannel = async (
       return {
         message: `No alert required for this report`,
       };
-    const response = await fetch(slack, {
+    const response = await fetch(slack.id, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

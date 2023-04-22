@@ -4,16 +4,28 @@ import { sendAlertToSlackChannel } from '../alert/slack';
 import { PSIStrategy } from '../../types';
 
 describe('unit tests for alert services', () => {
+  const defaultAlertConfig = {
+    email: {
+      id: 'test@gmail.com',
+      enabled: true,
+    },
+    slack: {
+      id: 'test',
+      enabled: true,
+    },
+  };
   describe('testing email alerting service', () => {
     it('it should return error if alertConfig is not defined', async () => {
-      const result = await sendAlertMail(undefined, {});
+      const alertConfig = undefined;
+      const result = await sendAlertMail(alertConfig, {});
       expect(result).toEqual({
         message: 'Alert config not found, generate one by /POST to /alert',
         failed: true,
       });
     });
     it('it should return error if email is not defined in alertConfig', async () => {
-      const result = await sendAlertMail({ email: null }, {});
+      const alertConfig = { ...defaultAlertConfig, email: { id: null, enabled: true } };
+      const result = await sendAlertMail(alertConfig, {});
       expect(result).toEqual({
         message: 'Email in alertConfig not found, add one by /PATCH to /alert',
         failed: true,
@@ -21,7 +33,7 @@ describe('unit tests for alert services', () => {
     });
 
     it('it should not alert if onlyAlertIfBelowBaseline is true and alert is not required', async () => {
-      const result = await sendAlertMail({ email: 'test@gmail.com' }, {}, undefined, true);
+      const result = await sendAlertMail(defaultAlertConfig, {}, undefined, true);
       expect(result).toEqual({
         message: `No alert required for this report`,
       });
@@ -29,14 +41,16 @@ describe('unit tests for alert services', () => {
   });
   describe('testing slack alerting service', () => {
     it('it should return error if alertConfig is not defined', async () => {
-      const result = await sendAlertToSlackChannel(undefined, {});
+      const alertConfig = undefined;
+      const result = await sendAlertToSlackChannel(alertConfig, {});
       expect(result).toEqual({
         message: 'Alert config not found, generate one by /POST to /alert',
         failed: true,
       });
     });
     it('it should return error if slack is not defined in alertConfig', async () => {
-      const result = await sendAlertToSlackChannel({ slack: null }, {});
+      const alertConfig = { ...defaultAlertConfig, slack: { id: null, enabled: true } };
+      const result = await sendAlertToSlackChannel(alertConfig, {});
       expect(result).toEqual({
         message: 'Slack Channel in alertConfig not found, add one by /PATCH to /alert',
         failed: true,
@@ -44,7 +58,7 @@ describe('unit tests for alert services', () => {
     });
     it('it should not alert if onlyAlertIfBelowBaseline is true and alert is not required', async () => {
       const result = await sendAlertToSlackChannel(
-        { slack: 'testing-slack-url' },
+        defaultAlertConfig,
         {},
         PSIStrategy.DESKTOP,
         true
