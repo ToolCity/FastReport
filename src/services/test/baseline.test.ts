@@ -24,7 +24,6 @@ describe('unit tests for baseline services', () => {
           },
         ],
         {
-          id: '1234',
           baselineConfig: [
             {
               url: 'https://www.google.com',
@@ -55,7 +54,6 @@ describe('unit tests for baseline services', () => {
           },
         ],
         {
-          id: '1234',
           baselineConfig: [],
         },
         [PSICategories.PERFORMANCE]
@@ -80,7 +78,6 @@ describe('unit tests for baseline services', () => {
           },
         ],
         {
-          id: '1234',
           baselineConfig: [
             {
               url: 'https://www.google.com',
@@ -111,7 +108,6 @@ describe('unit tests for baseline services', () => {
           },
         ],
         {
-          id: '1234',
           baselineConfig: [
             {
               url: 'https://www.google.com',

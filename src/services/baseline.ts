@@ -1,9 +1,11 @@
 import { baselineStore } from '../store';
 import { PSICategories } from '../types';
+import { defaultStrategy } from './pagespeed';
 
-export const getBaselineService = (apiKey: string) => {
+export const getBaselineService = (apiKey: string, strategy = defaultStrategy) => {
   const baseline = baselineStore.find(baseline => baseline.id === apiKey);
-  return baseline;
+  if (!baseline) return undefined;
+  return baseline[strategy];
 };
 
 export const compareReportWithBaseline = (

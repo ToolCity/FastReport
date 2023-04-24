@@ -80,7 +80,7 @@ export const getTrigger = async (req: Request, res: Response) => {
   });
 
   const onlyAlertIfBelowBaseline = true; // set this to true if you want to send alert only if the score is below the baseline
-  const baseline = getBaselineService(apiKey.toString());
+  const baseline = getBaselineService(apiKey.toString(), chosenStartegy);
   const result = compareReportWithBaseline(report, baseline, chosenCategory);
   const emailAlertStatus = await sendAlertMail(
     alertConfig,
