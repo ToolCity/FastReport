@@ -2,16 +2,16 @@ import { baselineStore } from '../store';
 import { PSICategories } from '../types';
 import { defaultStrategy } from './pagespeed';
 
-export const getBaselineService = (apiKey: string, strategy = defaultStrategy) => {
+export const getBaselineService = (apiKey: string) => {
   const baseline = baselineStore.find(baseline => baseline.id === apiKey);
-  if (!baseline) return undefined;
-  return baseline[strategy];
+  return baseline;
 };
 
 export const compareReportWithBaseline = (
   report: Record<string, any>,
   baseline: Record<string, any> | undefined,
-  chosenCategory: PSICategories[]
+  chosenCategory: PSICategories[],
+  chosenStartegy = defaultStrategy
 ) => {
   if (!baseline) {
     return {
@@ -26,7 +26,9 @@ export const compareReportWithBaseline = (
         failed: true,
       };
     } else {
-      const baselineConfig = baseline.baselineConfig.find((bs: any) => bs.url === data.url);
+      const baselineConfig = baseline[chosenStartegy].baselineConfig.find(
+        (bs: any) => bs.url === data.url
+      );
       if (!baselineConfig) {
         result[data.url] = {
           message:

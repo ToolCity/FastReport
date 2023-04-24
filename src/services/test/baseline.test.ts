@@ -1,6 +1,6 @@
 import { describe, it, expect } from '@jest/globals';
 import { getBaselineService, compareReportWithBaseline } from '../baseline';
-import { PSICategories } from '../../types';
+import { PSICategories, PSIStrategy } from '../../types';
 describe('unit tests for baseline services', () => {
   describe('testing getBaselineService', () => {
     it('should return undefined if null apiKey is provided', () => {
@@ -24,16 +24,19 @@ describe('unit tests for baseline services', () => {
           },
         ],
         {
-          baselineConfig: [
-            {
-              url: 'https://www.google.com',
-              performance: '0.9',
-              accessibility: '0.9',
-              bestPractices: '0.9',
-              seo: '0.9',
-              pwa: '0.9',
-            },
-          ],
+          id: '1234',
+          [PSIStrategy.DESKTOP]: {
+            baselineConfig: [
+              {
+                url: 'https://www.google.com',
+                performance: '0.9',
+                accessibility: '0.9',
+                bestPractices: '0.9',
+                seo: '0.9',
+                pwa: '0.9',
+              },
+            ],
+          },
         },
         [PSICategories.PERFORMANCE]
       );
@@ -54,7 +57,10 @@ describe('unit tests for baseline services', () => {
           },
         ],
         {
-          baselineConfig: [],
+          id: '1234',
+          [PSIStrategy.DESKTOP]: {
+            baselineConfig: [],
+          },
         },
         [PSICategories.PERFORMANCE]
       );
@@ -78,12 +84,15 @@ describe('unit tests for baseline services', () => {
           },
         ],
         {
-          baselineConfig: [
-            {
-              url: 'https://www.google.com',
-              performance: '0.9',
-            },
-          ],
+          id: '1234',
+          [PSIStrategy.DESKTOP]: {
+            baselineConfig: [
+              {
+                url: 'https://www.google.com',
+                performance: '0.9',
+              },
+            ],
+          },
         },
         [PSICategories.SEO]
       );
@@ -108,12 +117,15 @@ describe('unit tests for baseline services', () => {
           },
         ],
         {
-          baselineConfig: [
-            {
-              url: 'https://www.google.com',
-              seo: '0.9',
-            },
-          ],
+          id: '1234',
+          [PSIStrategy.DESKTOP]: {
+            baselineConfig: [
+              {
+                url: 'https://www.google.com',
+                seo: '0.9',
+              },
+            ],
+          },
         },
         [PSICategories.SEO]
       );
