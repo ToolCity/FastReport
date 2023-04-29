@@ -1,4 +1,4 @@
-import { QueueManager, Message, Producer } from 'redis-smq';
+import { QueueManager, Message, Producer, MessageManager } from 'redis-smq';
 import config from '../../config/redis_smq';
 
 enum EQueueType {
@@ -8,7 +8,9 @@ enum EQueueType {
 }
 const QUEUE_NAME = 'trigger_queue';
 
-export const createQueueIfNotExists = () => {
+export const sendMessagesToQueue = (messages: Record<string, unknown>[]) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   QueueManager.createInstance(config, (err, queueManager) => {
     if (err) console.error(err);
     else {
@@ -21,16 +23,9 @@ export const createQueueIfNotExists = () => {
             } else {
               queueManager.queue.save(QUEUE_NAME, EQueueType.FIFO_QUEUE, err => console.error(err));
             }
-            createMessageProducer([
-              {
-                id: 1,
-                name: 'test',
-              },
-              {
-                id: 2,
-                name: 'test2',
-              },
-            ]);
+            // creates messages and pushes them to the queue
+            createMessagesProducer(messages);
+            showMessages();
           }
         });
       }
@@ -57,7 +52,7 @@ export const createMessage = (data: Record<string, unknown>) => {
   return message;
 };
 
-export const createMessageProducer = (messages: Record<string, unknown>[]) => {
+export const createMessagesProducer = (messages: Record<string, unknown>[]) => {
   const producer = new Producer();
   producer.run(err => {
     if (err) throw err;
@@ -74,4 +69,33 @@ export const createMessageProducer = (messages: Record<string, unknown>[]) => {
   });
 };
 
-createQueueIfNotExists();
+export const showMessages = () => {
+  MessageManager.createInstance(config, (err, messageManager) => {
+    if (err) console.error(err);
+    else {
+      if (messageManager) {
+        messageManager.pendingMessages.count(QUEUE_NAME, (err, reply) => {
+          if (err) console.error(err);
+          else {
+            if (!reply) console.log('No messages in queue');
+            else {
+              console.log(`There are ${reply} messages in queue`);
+              messageManager.pendingMessages.list(QUEUE_NAME, 0, reply, (err, reply) => {
+                if (err) console.error(err);
+                else {
+                  if (reply) {
+                    reply.items.forEach(item => {
+                      console.log(item.message);
+                    });
+                  }
+                }
+              });
+            }
+          }
+        });
+      }
+    }
+  });
+};
+
+sendMessagesToQueue([{ test: 'test' }, { test: 'test2' }]);
