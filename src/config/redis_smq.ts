@@ -1,6 +1,7 @@
+import { RedisClientName, TRedisConfig } from 'redis-smq-common/dist/types';
 export default {
   redis: {
-    client: 'redis',
+    client: RedisClientName.REDIS_V4,
     options: {
       host: '127.0.0.1',
       port: 6379,
@@ -16,4 +17,4 @@ export default {
   messages: {
     store: false,
   },
-};
+} as unknown as TRedisConfig;

@@ -19,7 +19,8 @@
     "express": "^4.18.2",
     "nodemailer": "^6.9.1",
     "redis-smq": "^7.2.3",
-    "redis-smq-common": "^2.0.0"
+    "redis-smq-common": "^2.0.0",
+    "socket.io": "^4.6.1"
   },
   "devDependencies": {
     "@babel/core": "^7.21.4",
