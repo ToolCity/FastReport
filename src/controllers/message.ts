@@ -3,13 +3,12 @@ import { Consumer } from 'redis-smq';
 import config from '../config/redis_smq';
 import { Request, Response } from 'express';
 import { io } from '../../src/index';
-import { socketConfig } from '../services/socket';
-import { time } from 'console';
+import { socketConfig, messageConfig } from '../config/socket';
 
 export const QUEUE_NAME = 'trigger_queue';
 
 export const postMessage = (req: Request, res: Response) => {
-  const { messages, roomId } = req.body;
+  const { messages, clientId } = req.body;
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   QueueManager.createInstance(config, (err, queueManager) => {
@@ -29,7 +28,7 @@ export const postMessage = (req: Request, res: Response) => {
             messages.forEach((data: Record<string, unknown>) => {
               const message = new Message();
               message
-                .setBody(data)
+                .setBody({ ...data, clientId })
                 .setTTL(3600000)
                 .setQueue(QUEUE_NAME)
                 .setRetryDelay(1000)
@@ -40,6 +39,7 @@ export const postMessage = (req: Request, res: Response) => {
                   const msgId = message.getId();
                   if (msgId) msgIds.push(msgId);
                   console.log('Successfully produced. Message ID is ', msgId);
+                  const roomId = socketConfig[clientId];
                   io.to(roomId).emit('message_id', { msgId });
                 }
               });
@@ -55,6 +55,10 @@ export const postMessage = (req: Request, res: Response) => {
 const messageHandler = async (message: Message, cb: (err?: Error) => void) => {
   const body = message.getBody();
   if (!body) throw new Error('body not found');
+  messageConfig[message.getId() as string] = {
+    status: 'queued',
+    message: 'message has been queued 🟡',
+  };
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   //   @ts-ignore
   const socketId = socketConfig[body.clientId];
@@ -65,8 +69,12 @@ const messageHandler = async (message: Message, cb: (err?: Error) => void) => {
   // what to do if no socket id is found?
   // maintain a message_id : status object so in case user asks for status of a particular message later it should be able to get it
   // Client will then get data when they emit event of get_status
+  messageConfig[message.getId() as string] = {
+    status: 'processed',
+    message: 'message has been processed 🟢',
+  };
   io.to(socketId).emit('status', { message: 'message has been processed 🟢' });
-  cb(new Error('error'));
+  cb();
 };
 
 const consumer = new Consumer();

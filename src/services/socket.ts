@@ -1,7 +1,6 @@
 import { Server } from 'socket.io';
 import http from 'http';
-
-export const socketConfig: Record<string, string> = {};
+import { socketConfig, messageConfig } from '../config/socket';
 
 export const socketWorker = (
   server: http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>
@@ -32,7 +31,7 @@ export const socketWorker = (
         socket.emit('status', { status: 'error', message: 'ids not found' });
         return;
       }
-      console.log('ids', ids);
+      socket.emit('status', messageConfig);
       // get status from redis-smq with ids
       // send via socket
     });
