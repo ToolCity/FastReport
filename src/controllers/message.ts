@@ -60,7 +60,7 @@ const messageHandler = async (message: Message, cb: (err?: Error) => void) => {
     message: 'message has been queued 🟡',
   };
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //   @ts-ignore
+  // @ts-ignore
   const socketId = socketConfig[body.clientId];
   io.to(socketId).emit('status', { message: 'message has been received by worker 🟡' });
   // get the socket id for the client which queued the message
@@ -77,8 +77,14 @@ const messageHandler = async (message: Message, cb: (err?: Error) => void) => {
   cb();
 };
 
-const consumer = new Consumer();
-consumer.consume(QUEUE_NAME, messageHandler, err => {
-  if (err) throw err;
-});
-consumer.run();
+const numberOfConsumers = 4;
+const consumers = [];
+for (let i = 0; i < numberOfConsumers; i++) {
+  const consumer = new Consumer();
+  consumer.consume(QUEUE_NAME, messageHandler, err => {
+    if (err) throw err;
+  });
+  consumers.push(consumer);
+}
+
+consumers.forEach(consumer => consumer.run());
