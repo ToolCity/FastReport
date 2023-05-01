@@ -80,7 +80,7 @@ const messageHandler = async (message: Message, cb: (err?: Error) => void) => {
   cb();
 };
 
-const numberOfConsumers = Number(process.env.NUMBER_OF_QUEUE_CONSUMERS) || 0;
+const numberOfConsumers = Number(process.env.REDIS_NUMBER_OF_QUEUE_CONSUMERS) ?? 4;
 
 const consumers = [];
 for (let i = 0; i < numberOfConsumers; i++) {

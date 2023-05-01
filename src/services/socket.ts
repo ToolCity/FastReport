@@ -21,6 +21,8 @@ export const socketWorker = (
       console.log(socketConfig);
     });
     socket.on('disconnect', () => {
+      const key = Object.keys(socketConfig).find(key => socketConfig[key] === socket.id);
+      if (key) delete socketConfig[key];
       console.log('user disconnected');
     });
     socket.on('get_status', (data: string) => {
@@ -31,9 +33,14 @@ export const socketWorker = (
         socket.emit('status', { status: 'error', message: 'ids not found' });
         return;
       }
-      socket.emit('status', messageConfig);
-      // get status from redis-smq with ids
-      // send via socket
+      const status = ids.map((id: string) => {
+        if (Object.keys(messageConfig).includes(id)) {
+          return {
+            [id]: messageConfig[id],
+          };
+        }
+      });
+      socket.emit('status', status);
     });
   });
   return io;
