@@ -25,7 +25,7 @@ export const triggerMessageHandler = async (message: Message, cb: (err?: Error) 
     status: 'trigger',
     message: 'lighthouse score has been fetched 🟢',
   };
-  // push the data to compare queue
+  //TODO: push the data to compare queue
   if (socketId) io.to(socketId).emit('status', messageConfig[messageId]);
   else console.log('socket connection not found, unable to notify client');
   cb();
@@ -54,7 +54,7 @@ export const compareMessageHandler = async (message: Message, cb: (err?: Error) 
     status: 'comparision',
     message: 'Scores have been compared with baseline and report generated! 🟢',
   };
-  // push the data to alert queue
+  //TODO: push the data to alert queue
   if (socketId) io.to(socketId).emit('status', messageConfig[messageId]);
   else console.log('socket connection not found, unable to notify client');
   cb();
