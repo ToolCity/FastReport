@@ -1,7 +1,9 @@
-import { QueueManager, Message, Producer } from 'redis-smq';
+import { QueueManager, Message, Producer, Consumer } from 'redis-smq';
 import config from '../config/redis_smq';
+import { triggerMessageHandler } from './message';
+import { messageConfig } from '../config/socket';
 
-export const createQueue = (queueName: string) => {
+export const checkQueueExists = (queueName: string) => {
   return new Promise((resolve, reject) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -9,16 +11,32 @@ export const createQueue = (queueName: string) => {
       if (err) reject(err);
       else {
         queueManager?.queue.exists(queueName, (err, reply) => {
-          if (err) reject(err);
-          else {
-            if (!reply) {
-              console.log('Queue does not exist. Creating queue...');
-              queueManager?.queue.save(queueName, 1, err => console.error(err));
-            }
-            resolve(1);
+          if (err) {
+            console.log('Error checking if queue exists');
+            reject(err);
+          } else {
+            resolve(reply);
           }
         });
       }
+    });
+  });
+};
+
+export const createQueue = async (queueName: string) => {
+  const queueExists = await checkQueueExists(queueName);
+  if (queueExists) {
+    console.log('Queue already exists');
+    return 1;
+  }
+  return new Promise((resolve, reject) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    QueueManager.createInstance(config, (err, queueManager) => {
+      if (err) reject(err);
+      queueManager?.queue.save(queueName, 1, err => reject(err));
+      console.log('Queue created successfully');
+      resolve(1);
     });
   });
 };
@@ -48,4 +66,39 @@ export const createMessage = (body: unknown, queueName: string) => {
     .setRetryThreshold(2);
 
   return message;
+};
+
+export const runConsumer = (consumer: Consumer) => {
+  return new Promise((resolve, reject) => {
+    console.log('Running consumer');
+    consumer.run((err, status) => {
+      if (err) reject(err);
+      if (status) {
+        consumer.shutdown();
+        resolve(status);
+      }
+    });
+  });
+};
+export const setupConsumers = async (queueName: string) => {
+  await createQueue(queueName);
+  const numberOfConsumers = Number(process.env.REDIS_NUMBER_OF_QUEUE_CONSUMERS) ?? 4;
+  const consumers = [];
+  for (let i = 0; i < numberOfConsumers; i++) {
+    const consumer = new Consumer();
+    consumer.consume(queueName, triggerMessageHandler, err => {
+      if (err) throw err;
+    });
+    consumers.push(consumer);
+  }
+  consumers.forEach(async consumer => {
+    await runConsumer(consumer);
+  });
+};
+
+export const setMessageStatus = (msgId: string, status: Record<string, unknown>) => {
+  messageConfig[msgId] = status;
+  return {
+    [msgId]: messageConfig[msgId],
+  };
 };
