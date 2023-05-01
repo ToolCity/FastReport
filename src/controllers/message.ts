@@ -1,11 +1,13 @@
+import { config as dotenvConfig } from 'dotenv';
 import { QueueManager, Message, Producer } from 'redis-smq';
 import { Consumer } from 'redis-smq';
 import config from '../config/redis_smq';
 import { Request, Response } from 'express';
 import { io } from '../../src/index';
 import { socketConfig, messageConfig } from '../config/socket';
+dotenvConfig();
 
-export const QUEUE_NAME = 'trigger_queue';
+export const QUEUE_NAME = String(process.env.QUEUE_NAME) || 'trigger_queue';
 
 export const postMessage = (req: Request, res: Response) => {
   const { messages, clientId } = req.body;
@@ -73,11 +75,13 @@ const messageHandler = async (message: Message, cb: (err?: Error) => void) => {
     status: 'processed',
     message: 'message has been processed 🟢',
   };
-  io.to(socketId).emit('status', { message: 'message has been processed 🟢' });
+  if (socketId) io.to(socketId).emit('status', { message: 'message has been processed 🟢' });
+  else console.log('socket connection not found, unable to notify client');
   cb();
 };
 
-const numberOfConsumers = 4;
+const numberOfConsumers = Number(process.env.NUMBER_OF_QUEUE_CONSUMERS) || 0;
+
 const consumers = [];
 for (let i = 0; i < numberOfConsumers; i++) {
   const consumer = new Consumer();
