@@ -26,7 +26,7 @@ export const socketWorker = (
       console.log('user disconnected');
     });
     socket.on('get_status', (data: string) => {
-      // get id from the data and find the status of the message from queue
+      //TODO: could also get client ID and return status of all messages
       const { ids } = JSON.parse(data);
       if (!ids) {
         console.log('ids not found');
