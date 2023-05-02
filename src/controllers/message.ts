@@ -3,11 +3,10 @@ import { Request, Response } from 'express';
 import { io } from '../../src/index';
 import { socketConfig, messageConfig } from '../config/socket';
 import { createMessage, createQueue, produceMessage, setupConsumers } from '../services/redis_smq';
-import { triggerMessageHandler } from '../services/message';
+import { triggerMessageHandler } from '../services/message/trigger';
 dotenvConfig();
 
-// export const QUEUE_NAME = String(process.env.REDIS_QUEUE_NAME) ?? 'trigger_queue';
-export const QUEUE_NAME = 'test_queue';
+export const QUEUE_NAME = String(process.env.REDIS_QUEUE_NAME) ?? 'trigger_queue';
 
 export const postMessage = async (req: Request, res: Response) => {
   const { messages, apiKey: clientId } = req.body;

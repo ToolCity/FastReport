@@ -1,6 +1,5 @@
 import { QueueManager, Message, Producer, Consumer } from 'redis-smq';
 import config from '../config/redis_smq';
-import { triggerMessageHandler } from './message';
 import { messageConfig } from '../config/socket';
 const defaultNumberOfConsumers = Number(process.env.REDIS_NUMBER_OF_QUEUE_CONSUMERS) ?? 4;
 
