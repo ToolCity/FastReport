@@ -74,8 +74,11 @@ export const runConsumer = (consumer: Consumer) => {
     consumer.run((err, status) => {
       if (err) reject(err);
       if (status) {
-        consumer.shutdown();
-        resolve(status);
+        consumer.shutdown((err, reply) => {
+          if (err) reject(err);
+          console.log('Consumer shutdown');
+          resolve(reply);
+        });
       }
     });
   });
