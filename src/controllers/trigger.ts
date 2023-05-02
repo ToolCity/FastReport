@@ -1,15 +1,15 @@
 import { Request, Response } from 'express';
 import { configStore } from '../store/index';
-import {
-  getScore,
-  defaultCategory,
-  setUpLighthouseQueryString,
-  defaultStrategy,
-} from '../services/pagespeed';
+import { defaultCategory, defaultStrategy } from '../services/pagespeed';
 import { PSICategories, PSIStrategy } from '../types/index';
-import { compareReportWithBaseline, getBaselineService } from '../services/baseline';
-import { sendAlertMail } from '../services/alert/email';
-import { sendAlertToSlackChannel } from '../services/alert/slack';
+import { config as dotenvConfig } from 'dotenv';
+import { io } from '../../src/index';
+import { socketConfig, messageConfig } from '../config/socket';
+import { createMessage, createQueue, produceMessage, setupConsumers } from '../services/redis_smq';
+import { triggerMessageHandler } from '../services/message/trigger';
+dotenvConfig();
+
+export const QUEUE_NAME = String(process.env.REDIS_QUEUE_NAME) ?? 'trigger_queue';
 
 export const getTrigger = async (req: Request, res: Response) => {
   const { apiKey, category, strategy } = req.query;
@@ -54,52 +54,23 @@ export const getTrigger = async (req: Request, res: Response) => {
   if (strategy && Object.values(PSIStrategy).includes(strategy as PSIStrategy)) {
     chosenStartegy = strategy as PSIStrategy;
   }
-
   const { urls, alertConfig } = config;
 
-  const queries = urls.map(url => setUpLighthouseQueryString(url, chosenCategory, chosenStartegy));
-  // trigger the queries
-  const data = await Promise.allSettled(
-    queries.map(async query => {
-      const response = await (await fetch(query)).json();
-      if (response.error) {
-        throw new Error(response.error.message);
-      }
-      const { lighthouseResult } = response;
-      return getScore(lighthouseResult);
-    })
+  const clientId = apiKey.toString();
+  await createQueue(QUEUE_NAME);
+  const message = createMessage(
+    { urls, apiKey, clientId, alertConfig, chosenStartegy, chosenCategory },
+    QUEUE_NAME
   );
-  const report = data.map((result, index) => {
-    const url = urls[index];
-    if (result.status === 'fulfilled') {
-      const score = result.value;
-      return { url, ...score };
-    } else {
-      return { url, error: result.reason.message, failed: true };
-    }
-  });
-
-  const onlyAlertIfBelowBaseline = true; // set this to true if you want to send alert only if the score is below the baseline
-  const baseline = getBaselineService(apiKey.toString());
-  const result = compareReportWithBaseline(report, baseline, chosenCategory, chosenStartegy);
-  const emailAlertStatus = await sendAlertMail(
-    alertConfig,
-    result,
-    chosenStartegy,
-    onlyAlertIfBelowBaseline
-  );
-  const slackAlertStatus = await sendAlertToSlackChannel(
-    alertConfig,
-    result,
-    chosenStartegy,
-    onlyAlertIfBelowBaseline
-  );
-  res.json({
-    result,
-    report,
-    alertStatus: {
-      email: emailAlertStatus,
-      slack: slackAlertStatus,
-    },
-  });
+  const msgId = (await produceMessage(message)) as string;
+  messageConfig[msgId] = {
+    status: 'queued',
+    message: 'message has been queued 🟡',
+  };
+  const roomId = socketConfig[clientId];
+  io.to(roomId).emit('message_id', { msgId });
+  await setupConsumers(QUEUE_NAME, triggerMessageHandler);
+  res
+    .status(200)
+    .json({ status: 'success', message: 'message have been queued, started processing!', msgId });
 };
