@@ -2,6 +2,7 @@ import { QueueManager, Message, Producer, Consumer } from 'redis-smq';
 import config from '../config/redis_smq';
 import { triggerMessageHandler } from './message';
 import { messageConfig } from '../config/socket';
+const defaultNumberOfConsumers = Number(process.env.REDIS_NUMBER_OF_QUEUE_CONSUMERS) ?? 4;
 
 export const checkQueueExists = (queueName: string) => {
   return new Promise((resolve, reject) => {
@@ -83,13 +84,16 @@ export const runConsumer = (consumer: Consumer) => {
     });
   });
 };
-export const setupConsumers = async (queueName: string) => {
+export const setupConsumers = async (
+  queueName: string,
+  messageHandler: (message: Message, cb: (err?: Error) => void) => Promise<void>,
+  numberOfConsumers: number = defaultNumberOfConsumers
+) => {
   await createQueue(queueName);
-  const numberOfConsumers = Number(process.env.REDIS_NUMBER_OF_QUEUE_CONSUMERS) ?? 4;
   const consumers = [];
   for (let i = 0; i < numberOfConsumers; i++) {
     const consumer = new Consumer();
-    consumer.consume(queueName, triggerMessageHandler, err => {
+    consumer.consume(queueName, messageHandler, err => {
       if (err) throw err;
     });
     consumers.push(consumer);
