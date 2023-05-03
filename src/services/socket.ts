@@ -1,6 +1,6 @@
 import { Server } from 'socket.io';
 import http from 'http';
-import { socketConfig, messageConfig } from '../config/socket';
+import { socketConfig, statusConfig } from '../config/socket';
 
 export const socketWorker = (
   server: http.Server<typeof http.IncomingMessage, typeof http.ServerResponse>
@@ -27,19 +27,12 @@ export const socketWorker = (
     });
     socket.on('get_status', (data: string) => {
       //TODO: could also get client ID and return status of all messages
-      const { ids } = JSON.parse(data);
-      if (!ids) {
-        console.log('ids not found');
-        socket.emit('status', { status: 'error', message: 'ids not found' });
+      const { apiKey } = JSON.parse(data);
+      if (!apiKey) {
+        socket.emit('status', { status: 'error', message: 'send apiKey to get the status' });
         return;
       }
-      const status = ids.map((id: string) => {
-        if (Object.keys(messageConfig).includes(id)) {
-          return {
-            [id]: messageConfig[id],
-          };
-        }
-      });
+      const status = statusConfig[apiKey.toString()];
       socket.emit('status', status);
     });
   });
