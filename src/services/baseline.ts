@@ -8,7 +8,7 @@ export const getBaselineService = (apiKey: string) => {
 };
 
 export const compareReportWithBaseline = (
-  report: Record<string, any>,
+  report: Record<string, any>[],
   baseline: Record<string, any> | undefined,
   chosenCategory: PSICategories[],
   chosenStartegy = defaultStrategy
