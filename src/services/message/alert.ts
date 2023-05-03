@@ -7,19 +7,18 @@ import { PSIStrategy } from '../../types';
 import { sendAlertToSlackChannel } from '../alert/slack';
 
 export const alertMessageHandler = async (message: Message, cb: (err?: Error) => void) => {
+  const body = message.getBody() as Record<string, unknown>;
+  if (!body) throw new Error('body not found');
+  const msgId = message.getId();
+  if (!msgId) throw new Error('message not found');
+  let messageStatus = setMessageStatus(msgId, {
+    status: 'alert',
+    message: 'Sending alerts...🟡',
+  });
+  const { result, alertConfig, chosenStartegy, clientId } = body;
+  const socketId = socketConfig[clientId as string];
+
   try {
-    const body = message.getBody() as Record<string, unknown>;
-    if (!body) throw new Error('body not found');
-    const msgId = message.getId();
-    if (!msgId) throw new Error('message not found');
-    let messageStatus = setMessageStatus(msgId, {
-      status: 'alert',
-      message: 'Sending alerts...🟡',
-    });
-    const { result, alertConfig, chosenStartegy, clientId } = body;
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const socketId = socketConfig[clientId];
     io.to(socketId).emit('status', messageStatus);
 
     const onlyAlertIfBelowBaseline = true; // set this to true if you want to send alert only if the score is below the baseline
@@ -49,6 +48,12 @@ export const alertMessageHandler = async (message: Message, cb: (err?: Error) =>
     cb();
   } catch (e: any) {
     console.log('Error occured in alertMessageHandler', e);
+    messageStatus = setMessageStatus(msgId, {
+      status: 'alert',
+      message: 'Error occured while alerting',
+      error: e,
+    });
+    if (socketId) io.to(socketId).emit('status', messageStatus);
     cb(e);
   }
 };
