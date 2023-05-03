@@ -7,6 +7,7 @@
 - Define your test suites with multiple urls and baseline configs
 - Get a complete score report and alerts on email and slack by just calling a single endpoint.
 - Detect what changes are causing the performance drops by adding the tool to your CI/CD workflows.
+- Easy to use Web UI [coming soon]
 - Open source, Highly customisable 🚀
 
 ## Sample alerts
@@ -19,13 +20,32 @@
 
 ![slack-report.png](./docs/slack-report.png)
 
-## How to use
+## Requirements
 
-1. Create a `.env` file by copying contents from `sample.env` and provide the required env variables.
-2. Set the config for your website in the `store/index.ts` file, add the urls you want to test and set a baseline score for different urls based on devices, set alert config for email and slack. Sample config below to use as a reference.
-3. Start the server : `npm run build` and `node dist/index.js`.
-4. GET `/api/trigger/{id}` to trigger the performance tests, once the performance tests are done you will
-   receive reports on your alertConfigs like email and slack channel.
+1. Must have node installed v16 or above
+2. Must have redis installed, tool internally uses redis-smq.
+
+## Usage guide
+
+### Setup
+
+- Create a `.env` file by copying contents from `sample.env` and provide the required env variables.
+- Set the config for your website in the `store/index.ts` file, add the urls you want to test and set a baseline score for different urls based on devices, set alert config for email and slack. Sample config below to use as a reference.
+- Start the server : `npm run build` and `node dist/index.js`.
+
+### Triggering tests
+
+GET `/api/trigger?apiKey=<your_api_key>` to trigger the performance tests, after completion of report you receive reports on your alertConfigs like email and slack channel.
+
+### Status Updates
+
+### Realtime
+
+Get realtime update on status by establishing a socket connection with the server, by first initiating a socket connection request to `/socket.io` endpoint and then emitting a `join` event with body as `{"clientId" : "your_api_key"}`, this will give realtime updates as your workflow goes through different processing.
+
+### Polling
+
+GET `/api/status?apiKey=<your_api_key>` to poll for status of the running tests.
 
 ## Defaults
 
