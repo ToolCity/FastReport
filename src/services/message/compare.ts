@@ -1,4 +1,5 @@
 import { socketConfig } from '../../config/socket';
+import { ALERT_QUEUE_NAME } from '../../config/redis_smq';
 import { io } from '../../index';
 import { Message } from 'redis-smq';
 import {
@@ -53,13 +54,13 @@ export const compareMessageHandler = async (message: Message, cb: (err?: Error) 
     );
 
     //TODO: push the data to alert queue
-    await createQueue('alert_queue');
+    await createQueue(ALERT_QUEUE_NAME);
     const cmessage = createMessage(
       { result, alertConfig, chosenStartegy, clientId },
-      'alert_queue'
+      ALERT_QUEUE_NAME
     );
     await produceMessage(cmessage);
-    await setupConsumers('alert_queue', alertMessageHandler);
+    await setupConsumers(ALERT_QUEUE_NAME, alertMessageHandler);
     if (socketId) io.to(socketId).emit('status', messageStatus);
     else console.log('socket connection not found, unable to notify client');
     cb();

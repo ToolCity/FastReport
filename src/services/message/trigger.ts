@@ -1,6 +1,7 @@
 import { socketConfig } from '../../config/socket';
 import { io } from '../../index';
 import { Message } from 'redis-smq';
+import { COMPARE_QUEUE_NAME } from '../../config/redis_smq';
 import {
   createMessage,
   setMessageStatus,
@@ -69,13 +70,13 @@ export const triggerMessageHandler = async (message: Message, cb: (err?: Error) 
       clientId
     );
 
-    await createQueue('compare_queue');
+    await createQueue(COMPARE_QUEUE_NAME);
     const cmessage = createMessage(
       { report, chosenCategory, chosenStartegy, clientId, ...rest },
-      'compare_queue'
+      COMPARE_QUEUE_NAME
     );
     await produceMessage(cmessage);
-    await setupConsumers('compare_queue', compareMessageHandler);
+    await setupConsumers(COMPARE_QUEUE_NAME, compareMessageHandler);
     if (socketId) io.to(socketId).emit('status', messageStatus);
     else console.log('socket connection not found, unable to notify client');
     cb();

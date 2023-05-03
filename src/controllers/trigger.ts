@@ -7,9 +7,9 @@ import { io } from '../../src/index';
 import { socketConfig, messageConfig, statusConfig } from '../config/socket';
 import { createMessage, createQueue, produceMessage, setupConsumers } from '../services/redis_smq';
 import { triggerMessageHandler } from '../services/message/trigger';
-dotenvConfig();
+import { TRIGGER_QUEUE_NAME } from '../config/redis_smq';
 
-export const QUEUE_NAME = String(process.env.REDIS_QUEUE_NAME) ?? 'trigger_queue';
+dotenvConfig();
 
 export const getTrigger = async (req: Request, res: Response) => {
   try {
@@ -65,10 +65,10 @@ export const getTrigger = async (req: Request, res: Response) => {
       alert: 'yet to be alerted',
     };
 
-    await createQueue(QUEUE_NAME);
+    await createQueue(TRIGGER_QUEUE_NAME);
     const message = createMessage(
       { urls, apiKey, clientId, alertConfig, chosenStartegy, chosenCategory },
-      QUEUE_NAME
+      TRIGGER_QUEUE_NAME
     );
     const msgId = (await produceMessage(message)) as string;
     messageConfig[msgId] = {
@@ -77,7 +77,7 @@ export const getTrigger = async (req: Request, res: Response) => {
     };
     const roomId = socketConfig[clientId];
     if (roomId) io.to(roomId).emit('message_id', { msgId });
-    await setupConsumers(QUEUE_NAME, triggerMessageHandler);
+    await setupConsumers(TRIGGER_QUEUE_NAME, triggerMessageHandler);
     res
       .status(200)
       .json({ status: 'success', message: 'message have been queued, started processing!', msgId });
