@@ -10,7 +10,7 @@ describe('unit tests for baseline services', () => {
   });
   describe('testing compareReportWithBaseline', () => {
     it('should return baseline config not found', () => {
-      const result = compareReportWithBaseline({}, undefined, []);
+      const result = compareReportWithBaseline([], undefined, []);
       expect(result).toEqual({
         result: 'baseline config not found, generate one by /POST to /baseline',
       });
