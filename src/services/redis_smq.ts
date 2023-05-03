@@ -3,21 +3,26 @@ import config from '../config/redis_smq';
 import { messageConfig, statusConfig } from '../config/socket';
 const defaultNumberOfConsumers = Number(process.env.REDIS_NUMBER_OF_QUEUE_CONSUMERS) ?? 4;
 
-export const checkQueueExists = (queueName: string) => {
+export const initialiseRedisQueueManager = (): Promise<QueueManager | undefined> => {
   return new Promise((resolve, reject) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     QueueManager.createInstance(config, (err, queueManager) => {
       if (err) reject(err);
-      else {
-        queueManager?.queue.exists(queueName, (err, reply) => {
-          if (err) {
-            console.log('Error checking if queue exists');
-            reject(err);
-          } else {
-            resolve(reply);
-          }
-        });
+      else resolve(queueManager);
+    });
+  });
+};
+
+export const checkQueueExists = async (queueName: string) => {
+  const queueManager = await initialiseRedisQueueManager();
+  return new Promise((resolve, reject) => {
+    queueManager?.queue.exists(queueName, (err, reply) => {
+      if (err) {
+        console.log('Error checking if queue exists');
+        reject(err);
+      } else {
+        resolve(reply);
       }
     });
   });
@@ -29,15 +34,11 @@ export const createQueue = async (queueName: string) => {
     console.log('Queue already exists');
     return 1;
   }
+  const queueManager = await initialiseRedisQueueManager();
   return new Promise((resolve, reject) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    QueueManager.createInstance(config, (err, queueManager) => {
-      if (err) reject(err);
-      queueManager?.queue.save(queueName, 1, err => reject(err));
-      console.log('Queue created successfully');
-      resolve(1);
-    });
+    queueManager?.queue.save(queueName, 1, err => reject(err));
+    console.log('Queue created successfully');
+    resolve(1);
   });
 };
 
