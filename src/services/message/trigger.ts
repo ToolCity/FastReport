@@ -13,16 +13,24 @@ import { getScore, setUpLighthouseQueryString } from '../pagespeed';
 import { PSICategories, PSIStrategy } from '../../types';
 
 export const triggerMessageHandler = async (message: Message, cb: (err?: Error) => void) => {
+  const status = 'trigger';
   const body = message.getBody() as Record<string, unknown>;
   if (!body) throw new Error('body not found');
+  const { urls, chosenCategory, chosenStartegy, ...rest } = body;
+  const clientId = body.clientId as string;
+  const socketId = socketConfig[clientId];
   const msgId = message.getId();
+
   if (!msgId) throw new Error('message not found');
-  let messageStatus = setMessageStatus(msgId, {
-    status: 'trigger',
-    message: 'fetching data...🟡',
-  });
-  const { urls, chosenCategory, chosenStartegy, clientId, ...rest } = body;
-  const socketId = socketConfig[clientId as string];
+  let messageStatus = setMessageStatus(
+    msgId,
+    {
+      status,
+      message: 'fetching data...🟡',
+    },
+    clientId
+  );
+
   try {
     io.to(socketId).emit('status', messageStatus);
     const queries = (urls as string[]).map(url =>
@@ -32,7 +40,6 @@ export const triggerMessageHandler = async (message: Message, cb: (err?: Error) 
         chosenStartegy as PSIStrategy
       )
     );
-
     const data = await Promise.allSettled(
       (queries as string[]).map(async (query: string) => {
         const response = await (await fetch(query)).json();
@@ -52,12 +59,15 @@ export const triggerMessageHandler = async (message: Message, cb: (err?: Error) 
         return { url, error: result.reason.message, failed: true };
       }
     });
-
-    messageStatus = setMessageStatus(msgId, {
-      status: 'trigger',
-      message: 'lighthouse score has been fetched 🟢',
-      report,
-    });
+    messageStatus = setMessageStatus(
+      msgId,
+      {
+        status,
+        message: 'lighthouse score has been fetched 🟢',
+        report,
+      },
+      clientId
+    );
 
     await createQueue('compare_queue');
     const cmessage = createMessage(
@@ -71,11 +81,16 @@ export const triggerMessageHandler = async (message: Message, cb: (err?: Error) 
     cb();
   } catch (e: any) {
     console.error('Error occured in triggerMessageHandler', e);
-    messageStatus = setMessageStatus(msgId, {
-      status: 'trigger',
-      message: 'Error occured while triggering',
-      error: e,
-    });
+    messageStatus = setMessageStatus(
+      msgId,
+      {
+        status,
+        message: 'Error occured while triggering',
+        error: e,
+      },
+      clientId
+    );
+
     if (socketId) io.to(socketId).emit('status', messageStatus);
     cb(e);
   }

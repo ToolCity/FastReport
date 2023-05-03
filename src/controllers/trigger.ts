@@ -4,7 +4,7 @@ import { defaultCategory, defaultStrategy } from '../services/pagespeed';
 import { PSICategories, PSIStrategy } from '../types/index';
 import { config as dotenvConfig } from 'dotenv';
 import { io } from '../../src/index';
-import { socketConfig, messageConfig } from '../config/socket';
+import { socketConfig, messageConfig, statusConfig } from '../config/socket';
 import { createMessage, createQueue, produceMessage, setupConsumers } from '../services/redis_smq';
 import { triggerMessageHandler } from '../services/message/trigger';
 dotenvConfig();
@@ -58,6 +58,13 @@ export const getTrigger = async (req: Request, res: Response) => {
     const { urls, alertConfig } = config;
 
     const clientId = apiKey.toString();
+
+    statusConfig[clientId] = {
+      trigger: 'yet to be triggered',
+      compare: 'yet to be compared',
+      alert: 'yet to be alerted',
+    };
+
     await createQueue(QUEUE_NAME);
     const message = createMessage(
       { urls, apiKey, clientId, alertConfig, chosenStartegy, chosenCategory },
@@ -69,7 +76,7 @@ export const getTrigger = async (req: Request, res: Response) => {
       message: 'message has been queued 🟡',
     };
     const roomId = socketConfig[clientId];
-    io.to(roomId).emit('message_id', { msgId });
+    if (roomId) io.to(roomId).emit('message_id', { msgId });
     await setupConsumers(QUEUE_NAME, triggerMessageHandler);
     res
       .status(200)

@@ -13,17 +13,24 @@ import { compareReportWithBaseline, getBaselineService } from '../baseline';
 import { PSICategories, PSIStrategy } from '../../types';
 
 export const compareMessageHandler = async (message: Message, cb: (err?: Error) => void) => {
+  const status = 'compare';
   const body = message.getBody() as Record<string, unknown>;
   if (!body) throw new Error('body not found');
+
+  const { apiKey, report, alertConfig, chosenCategory, chosenStartegy } = body;
+  const clientId = body.clientId as string;
+  const socketId = socketConfig[clientId];
+
   const msgId = message.getId();
   if (!msgId) throw new Error('message not found');
-  let messageStatus = setMessageStatus(msgId, {
-    status: 'comparision',
-    message: 'comparing with baseline...🟡',
-  });
-  const { apiKey, report, clientId, alertConfig, chosenCategory, chosenStartegy } = body;
-  console.log(body);
-  const socketId = socketConfig[clientId as string];
+  let messageStatus = setMessageStatus(
+    msgId,
+    {
+      status,
+      message: 'comparing with baseline...🟡',
+    },
+    clientId
+  );
 
   try {
     io.to(socketId).emit('status', messageStatus);
@@ -35,11 +42,15 @@ export const compareMessageHandler = async (message: Message, cb: (err?: Error) 
       chosenStartegy as PSIStrategy
     );
 
-    messageStatus = setMessageStatus(msgId, {
-      status: 'comparision',
-      message: 'Scores have been compared with baseline and report generated! 🟢',
-      result,
-    });
+    messageStatus = setMessageStatus(
+      msgId,
+      {
+        status,
+        message: 'Scores have been compared with baseline and report generated! 🟢',
+        result,
+      },
+      clientId
+    );
 
     //TODO: push the data to alert queue
     await createQueue('alert_queue');
@@ -54,11 +65,15 @@ export const compareMessageHandler = async (message: Message, cb: (err?: Error) 
     cb();
   } catch (e: any) {
     console.log('Error occured in compareMessageHandler', e);
-    messageStatus = setMessageStatus(msgId, {
-      status: 'comparision',
-      message: 'Error occured while comparing',
-      error: e,
-    });
+    messageStatus = setMessageStatus(
+      msgId,
+      {
+        status,
+        message: 'Error occured while comparing',
+        error: e,
+      },
+      clientId
+    );
     if (socketId) io.to(socketId).emit('status', messageStatus);
     cb(e);
   }

@@ -7,16 +7,23 @@ import { PSIStrategy } from '../../types';
 import { sendAlertToSlackChannel } from '../alert/slack';
 
 export const alertMessageHandler = async (message: Message, cb: (err?: Error) => void) => {
+  const status = 'alert';
   const body = message.getBody() as Record<string, unknown>;
   if (!body) throw new Error('body not found');
+  const { result, alertConfig, chosenStartegy } = body;
+  const clientId = body.clientId as string;
+  const socketId = socketConfig[clientId as string];
+
   const msgId = message.getId();
   if (!msgId) throw new Error('message not found');
-  let messageStatus = setMessageStatus(msgId, {
-    status: 'alert',
-    message: 'Sending alerts...🟡',
-  });
-  const { result, alertConfig, chosenStartegy, clientId } = body;
-  const socketId = socketConfig[clientId as string];
+  let messageStatus = setMessageStatus(
+    msgId,
+    {
+      status,
+      message: 'Sending alerts...🟡',
+    },
+    clientId
+  );
 
   try {
     io.to(socketId).emit('status', messageStatus);
@@ -35,24 +42,33 @@ export const alertMessageHandler = async (message: Message, cb: (err?: Error) =>
       onlyAlertIfBelowBaseline
     );
 
-    messageStatus = setMessageStatus(msgId, {
-      status: 'alert',
-      message: 'Alerts have been sent! 🟢',
-      alertStatus: {
-        emailAlertStatus,
-        slackAlertStatus,
+    messageStatus = setMessageStatus(
+      msgId,
+      {
+        status,
+        message: 'Alerts have been sent! 🟢',
+        alertStatus: {
+          emailAlertStatus,
+          slackAlertStatus,
+        },
       },
-    });
+      clientId
+    );
+
     if (socketId) io.to(socketId).emit('status', messageStatus);
     else console.log('socket connection not found, unable to notify client');
     cb();
   } catch (e: any) {
     console.log('Error occured in alertMessageHandler', e);
-    messageStatus = setMessageStatus(msgId, {
-      status: 'alert',
-      message: 'Error occured while alerting',
-      error: e,
-    });
+    messageStatus = setMessageStatus(
+      msgId,
+      {
+        status,
+        message: 'Error occured while alerting',
+        error: e,
+      },
+      clientId
+    );
     if (socketId) io.to(socketId).emit('status', messageStatus);
     cb(e);
   }

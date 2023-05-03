@@ -1,6 +1,6 @@
 import { QueueManager, Message, Producer, Consumer } from 'redis-smq';
 import config from '../config/redis_smq';
-import { messageConfig } from '../config/socket';
+import { messageConfig, statusConfig } from '../config/socket';
 const defaultNumberOfConsumers = Number(process.env.REDIS_NUMBER_OF_QUEUE_CONSUMERS) ?? 4;
 
 export const checkQueueExists = (queueName: string) => {
@@ -102,9 +102,14 @@ export const setupConsumers = async (
   });
 };
 
-export const setMessageStatus = (msgId: string, status: Record<string, unknown>) => {
+export const setMessageStatus = (msgId: string, status: Record<string, any>, apiKey: string) => {
   messageConfig[msgId] = status;
-  return {
+  const obj = {
     [msgId]: messageConfig[msgId],
   };
+  statusConfig[apiKey] = {
+    ...statusConfig[apiKey],
+    [status['status']]: obj,
+  };
+  return obj;
 };
