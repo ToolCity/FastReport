@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import { getConfigService } from '../services/config';
+import { configStore } from '../store';
 
 export const getConfig = (req: Request, res: Response) => {
   const { apiKey } = req.query;
   if (!apiKey) {
-    res.status(400).json({ error: 'apiKey is required' });
+    res.send(configStore);
     return;
   }
   const config = getConfigService(apiKey.toString());
