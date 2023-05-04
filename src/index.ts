@@ -1,4 +1,5 @@
 import http from 'http';
+import cors from 'cors';
 import express, { Request, Response } from 'express';
 import { socketWorker } from './services/socket';
 const PORT = process.env.PORT || 5000;
@@ -10,6 +11,7 @@ dotenv.config();
 const app = express();
 
 app.use(express.json());
+app.use(cors<Request>());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/views/public'));
 app.use('/api', routes);
