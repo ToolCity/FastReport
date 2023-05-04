@@ -138,7 +138,7 @@ export const sendAlertMail = async (
 
     const info = await transporter.sendMail(mailOptions);
     return {
-      message: `Alert email sent to ${email.id} with message id : ${info.messageId}`,
+      message: `Alert email sent to ${email.id} with message : ${JSON.stringify(info)}`,
     };
   } catch (e) {
     return {
