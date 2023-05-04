@@ -37,10 +37,13 @@
             <button onclick="getConfigs()">Get Config</button>
             <button onclick="getBaselineConfigs()">Get Baseline Config</button>
         </div>
+        <hr />
+        <div class="container" id="final-report"></div>
         <div class="container">
             <h4>Realtime status logs</h4>
             <div id="trigger-status"></div>
         </div>
+        <hr />
         <div class="container">
             <h4>API call responses</h4>
             <div id="configs"></div>
@@ -71,6 +74,14 @@
     socket.on('status', (data) => {
         const { message } = Object.values(data)[0]
         setJSONInnerHTML('trigger-status', data, message, false);
+    })
+    socket.on('final-report', (data) => {
+        const { html } = data
+        if (html) {
+            const container = document.getElementById('final-report')
+            const prevHTML = container.innerHTML
+            container.innerHTML = "<h4>Final Report</h4>" + html + "<hr/>" + prevHTML
+        }
     })
     const APIKEY = 'DA0524CF-3073-4346-ACDA-F5816650FE8A';
     const trigger = async () => {
@@ -105,7 +116,7 @@
 
     const setJSONInnerHTML = (id, json, api = "api", showResponse = true) => {
         const prevHTML = document.getElementById(id).innerHTML;
-        document.getElementById(id).innerHTML = (`<h5># ${api}</h5>` + (showResponse ? "<br />" + `<pre class="prettyprint">${JSON.stringify(json, null, 4)}</pre>` + "<br />" : '') + prevHTML);
+        document.getElementById(id).innerHTML = (`<h5>‣ ${api}</h5>` + (showResponse ? `<pre class="prettyprint">${JSON.stringify(json, null, 4)}</pre>` : '') + prevHTML);
     };
 
 </script>

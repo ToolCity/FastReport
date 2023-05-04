@@ -61,7 +61,7 @@ const generateHTMLReport = (
             </head>
             <body>
                 <div>
-                    <h2>Your lighthouse performance report!</h2>
+                    <h4>Your lighthouse performance report!</h4>
                     <h4>Strategy : ${chosenStartegy}</h4>
                     <table width="100%">
                         <thead>
@@ -131,18 +131,26 @@ export const sendAlertMail = async (
         message: `No alert required for this report`,
       };
     }
+    const html = generateHTMLReport(alertResults, chosenStartegy);
     const mailOptions = {
       to: email.id,
-      html: generateHTMLReport(alertResults, chosenStartegy),
+      html,
     };
-
-    const info = await transporter.sendMail(mailOptions);
-    return {
-      message: `Alert email sent to ${email.id} with message : ${JSON.stringify(info)}`,
-    };
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      return {
+        message: `Alert email sent to ${email.id} with message : ${JSON.stringify(info)}`,
+        html,
+      };
+    } catch (e) {
+      return {
+        message: `Error : while sending email-alert : ${(e as Error).message}`,
+        html,
+      };
+    }
   } catch (e) {
     return {
-      message: `Error : Failed to send alert email, ${(e as Error).message}`,
+      message: `Error : while sending email-alert : ${(e as Error).message}`,
       failed: true,
     };
   }

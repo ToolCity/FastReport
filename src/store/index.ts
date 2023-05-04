@@ -32,7 +32,7 @@ export const baselineStore = [
       baselineConfig: [
         {
           url: 'https://www.builder.io',
-          performance: 0.9,
+          performance: 1,
           seo: 0.9,
           accessibility: undefined,
           'best-practices': undefined,

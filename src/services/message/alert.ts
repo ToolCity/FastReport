@@ -55,8 +55,14 @@ export const alertMessageHandler = async (message: Message, cb: (err?: Error) =>
       clientId
     );
 
-    if (socketId) io.to(socketId).emit('status', messageStatus);
-    else console.log('socket connection not found, unable to notify client');
+    if (socketId) {
+      io.to(socketId).emit('status', messageStatus);
+      if (emailAlertStatus.html) {
+        io.to(socketId).emit('final-report', {
+          html: emailAlertStatus.html,
+        });
+      }
+    } else console.log('socket connection not found, unable to notify client');
     cb();
   } catch (e: any) {
     console.log('Error occured in alertMessageHandler', e);
