@@ -61,7 +61,7 @@ const generateHTMLReport = (
             </head>
             <body>
                 <div>
-                    <h2>Your lighthouse performance report!</h2>
+                    <h4>Your lighthouse performance report!</h4>
                     <h4>Strategy : ${chosenStartegy}</h4>
                     <table width="100%">
                         <thead>
@@ -85,10 +85,7 @@ export const sendAlertMail = async (
 ) => {
   try {
     if (!alertConfig) {
-      return {
-        message: 'Alert config not found, generate one by /POST to /alert',
-        failed: true,
-      };
+      throw new Error('Alert config not found, generate one by /POST to /alert');
     }
     const { email } = alertConfig;
     if (!email.enabled) {
@@ -97,10 +94,7 @@ export const sendAlertMail = async (
       };
     }
     if (!email.id) {
-      return {
-        message: 'Email in alertConfig not found, add one by /PATCH to /alert',
-        failed: true,
-      };
+      throw new Error('Email id not found in alertConfig, add one by /PATCH to /alert');
     }
     let alertResults: Record<string, any> | null = null;
     if (onlyAlertIfBelowBaseline) {
@@ -131,19 +125,21 @@ export const sendAlertMail = async (
         message: `No alert required for this report`,
       };
     }
+    const html = generateHTMLReport(alertResults, chosenStartegy);
     const mailOptions = {
       to: email.id,
-      html: generateHTMLReport(alertResults, chosenStartegy),
+      html,
     };
-
-    const info = await transporter.sendMail(mailOptions);
-    return {
-      message: `Alert email sent to ${email.id} with message id : ${info.messageId}`,
-    };
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      return {
+        message: `Alert email sent to ${email.id} with message : ${JSON.stringify(info)}`,
+        html,
+      };
+    } catch (e) {
+      throw new Error('Error while sending email-alert');
+    }
   } catch (e) {
-    return {
-      message: `Error : Failed to send alert email, ${(e as Error).message}`,
-      failed: true,
-    };
+    throw new Error(`Error while sending email-alert: ${e}`);
   }
 };

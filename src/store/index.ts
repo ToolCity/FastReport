@@ -32,7 +32,7 @@ export const baselineStore = [
       baselineConfig: [
         {
           url: 'https://www.builder.io',
-          performance: 0.9,
+          performance: 1,
           seo: 0.9,
           accessibility: undefined,
           'best-practices': undefined,
@@ -62,7 +62,7 @@ export const configStore = [
     urls: [
       'https://www.builder.io',
       'https://www.builder.io/c/docs/getting-started',
-      'https://www.builder.io/c/docs/developers',
+      // 'https://www.builder.io/c/docs/developers',
     ],
     alertConfig: {
       email: {

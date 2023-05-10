@@ -68,10 +68,7 @@ export const sendAlertToSlackChannel = async (
   onlyAlertIfBelowBaseline = false
 ) => {
   if (!alertConfig) {
-    return {
-      message: 'Alert config not found, generate one by /POST to /alert',
-      failed: true,
-    };
+    throw new Error('Alert config not found, generate one by /POST to /alert');
   }
   const { slack } = alertConfig;
   if (!slack.enabled) {
@@ -80,10 +77,7 @@ export const sendAlertToSlackChannel = async (
     };
   }
   if (!slack.id) {
-    return {
-      message: 'Slack Channel in alertConfig not found, add one by /PATCH to /alert',
-      failed: true,
-    };
+    throw new Error('Slack Channel id not found in alertConfig, add one by /PATCH to /alert');
   }
   try {
     const sections = generateSectionForDevice(result, strategy, onlyAlertIfBelowBaseline);
@@ -114,13 +108,9 @@ export const sendAlertToSlackChannel = async (
         message: 'Successfully posted data to slack channel',
       };
     } else {
-      return {
-        message: 'Failed to post data to slack channel, status code : ' + response.status,
-        failed: true,
-      };
+      throw new Error(`Failed to post data to slack channel, status code : ${response.status}`);
     }
   } catch (e) {
-    console.error(e);
-    throw e;
+    throw new Error(`Failed to post data to slack channel, error : ${e}`);
   }
 };

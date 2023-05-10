@@ -3,7 +3,7 @@ import { configStore } from '../store/index';
 import { defaultCategory, defaultStrategy } from '../services/pagespeed';
 import { PSICategories, PSIStrategy } from '../types/index';
 import { config as dotenvConfig } from 'dotenv';
-import { io } from '../../src/index';
+import { io } from '../index';
 import { socketConfig, messageConfig, statusConfig } from '../config/socket';
 import { createMessage, createQueue, produceMessage, setupConsumers } from '../services/redis_smq';
 import { triggerMessageHandler } from '../services/message/trigger';
@@ -52,7 +52,10 @@ export const getTrigger = async (req: Request, res: Response) => {
     }
 
     let chosenStartegy: PSIStrategy = defaultStrategy;
-    if (strategy && Object.values(PSIStrategy).includes(strategy as PSIStrategy)) {
+    if (
+      strategy &&
+      Object.values(PSIStrategy).includes((strategy as string).toLocaleLowerCase() as PSIStrategy)
+    ) {
       chosenStartegy = strategy as PSIStrategy;
     }
     const { urls, alertConfig } = config;

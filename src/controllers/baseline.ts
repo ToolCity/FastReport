@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import { getBaselineService } from '../services/baseline';
+import { baselineStore } from '../store';
 
 export const getBaseline = (req: Request, res: Response) => {
   const { apiKey } = req.query;
   if (!apiKey) {
-    res.status(400).json({ error: 'apiKey is required' });
+    res.send(baselineStore);
     return;
   }
   const baseline = getBaselineService(apiKey.toString());

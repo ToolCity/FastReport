@@ -28,7 +28,7 @@ export const alertMessageHandler = async (message: Message, cb: (err?: Error) =>
   try {
     io.to(socketId).emit('status', messageStatus);
 
-    const onlyAlertIfBelowBaseline = true; // set this to true if you want to send alert only if the score is below the baseline
+    const onlyAlertIfBelowBaseline = false; // set this to true if you want to send alert only if the score is below the baseline
     const emailAlertStatus = await sendAlertMail(
       alertConfig as Record<string, unknown>,
       result as Record<string, unknown>,
@@ -55,8 +55,14 @@ export const alertMessageHandler = async (message: Message, cb: (err?: Error) =>
       clientId
     );
 
-    if (socketId) io.to(socketId).emit('status', messageStatus);
-    else console.log('socket connection not found, unable to notify client');
+    if (socketId) {
+      io.to(socketId).emit('status', messageStatus);
+      if (emailAlertStatus.html) {
+        io.to(socketId).emit('final-report', {
+          html: emailAlertStatus.html,
+        });
+      }
+    } else console.log('socket connection not found, unable to notify client');
     cb();
   } catch (e: any) {
     console.log('Error occured in alertMessageHandler', e);
