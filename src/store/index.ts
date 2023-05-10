@@ -62,7 +62,7 @@ export const configStore = [
     urls: [
       'https://www.builder.io',
       'https://www.builder.io/c/docs/getting-started',
-      'https://www.builder.io/c/docs/developers',
+      // 'https://www.builder.io/c/docs/developers',
     ],
     alertConfig: {
       email: {

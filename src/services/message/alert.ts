@@ -28,7 +28,7 @@ export const alertMessageHandler = async (message: Message, cb: (err?: Error) =>
   try {
     io.to(socketId).emit('status', messageStatus);
 
-    const onlyAlertIfBelowBaseline = true; // set this to true if you want to send alert only if the score is below the baseline
+    const onlyAlertIfBelowBaseline = false; // set this to true if you want to send alert only if the score is below the baseline
     const emailAlertStatus = await sendAlertMail(
       alertConfig as Record<string, unknown>,
       result as Record<string, unknown>,

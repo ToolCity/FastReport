@@ -22,13 +22,25 @@
             <button onclick="getBaselineConfigs()">Get Baseline Config</button>
         </div>
         <div class="container">
-            <div class="six columns">
+            <div class="four columns">
                 <label for="strategy">Choose Startegy</label>
                 <select class="u-full-width" id="strategy">
                     <option value="desktop">Desktop</option>
                     <option value="mobile">Mobile</option>
                 </select>
             </div>
+        </div>
+        <div class="container">
+            <fieldset>
+                <legend>Select categories</legend>
+                <input type="checkbox" id="performance" value="performance" /><label for="performance">performance
+                </label><br />
+                <input type="checkbox" id="seo" value="seo" /><label for="seo">SEO</label><br />
+                <input type="checkbox" id="accessibility" value="accessibility" /><label
+                    for="accessibility">accessibility</label><br />
+                <input type="checkbox" id="best-practices" value="best-practices" /><label
+                    for="best-practices">best-practices</label><br />
+            </fieldset>
         </div>
         <hr />
         <div class="container" id="final-report"></div>
@@ -81,10 +93,10 @@
             clientId: APIKEY
         }))
         const strategy = getChosenStrategy();
-        const url = `/api/trigger?apiKey=${APIKEY}&strategy=${strategy}`
+        const categories = getChosenCategory();
+        const url = `/api/trigger?apiKey=${APIKEY}&strategy=${strategy}&category=${categories}`
         const response = await fetch(url);
         const json = await response.json();
-        console.log(json);
         setJSONInnerHTML('configs', json, url);
         return json;
     };
@@ -93,7 +105,6 @@
         const url = "/api/config"
         const response = await fetch(url);
         const json = await response.json();
-        console.log(json);
         setJSONInnerHTML('configs', json, url);
         return json;
     };
@@ -102,7 +113,6 @@
         const url = "/api/baseline"
         const response = await fetch(url);
         const json = await response.json();
-        console.log(json);
         setJSONInnerHTML('configs', json, url);
         return json;
     };
@@ -119,6 +129,27 @@
     const getChosenStrategy = () => {
         const el = document.getElementById('strategy');
         return el.options[el.selectedIndex].value;
+    }
+
+    const getChosenCategory = () => {
+        const categories = [];
+        const performance = document.getElementById('performance');
+        const seo = document.getElementById('seo');
+        const accessibility = document.getElementById('accessibility');
+        const bestPractices = document.getElementById('best-practices');
+        if (performance.checked) {
+            categories.push(performance.value);
+        }
+        if (seo.checked) {
+            categories.push(seo.value);
+        }
+        if (accessibility.checked) {
+            categories.push(accessibility.value);
+        }
+        if (bestPractices.checked) {
+            categories.push(bestPractices.value);
+        }
+        return categories.join(',');
     }
 
     const setJSONInnerHTML = (id, json, api = "api", showResponse = true) => {
