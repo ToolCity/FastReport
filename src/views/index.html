@@ -21,6 +21,15 @@
             <button onclick="getConfigs()">Get Config</button>
             <button onclick="getBaselineConfigs()">Get Baseline Config</button>
         </div>
+        <div class="container">
+            <div class="six columns">
+                <label for="strategy">Choose Startegy</label>
+                <select class="u-full-width" id="strategy">
+                    <option value="desktop">Desktop</option>
+                    <option value="mobile">Mobile</option>
+                </select>
+            </div>
+        </div>
         <hr />
         <div class="container" id="final-report"></div>
         <div class="container">
@@ -71,7 +80,8 @@
         socket.emit('join', JSON.stringify({
             clientId: APIKEY
         }))
-        const url = `/api/trigger?apiKey=${APIKEY}`
+        const strategy = getChosenStrategy();
+        const url = `/api/trigger?apiKey=${APIKEY}&strategy=${strategy}`
         const response = await fetch(url);
         const json = await response.json();
         console.log(json);
@@ -104,6 +114,11 @@
             + currentdate.getHours() + ":"
             + currentdate.getMinutes() + ":"
             + currentdate.getSeconds();
+    }
+
+    const getChosenStrategy = () => {
+        const el = document.getElementById('strategy');
+        return el.options[el.selectedIndex].value;
     }
 
     const setJSONInnerHTML = (id, json, api = "api", showResponse = true) => {

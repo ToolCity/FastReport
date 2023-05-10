@@ -52,7 +52,10 @@ export const getTrigger = async (req: Request, res: Response) => {
     }
 
     let chosenStartegy: PSIStrategy = defaultStrategy;
-    if (strategy && Object.values(PSIStrategy).includes(strategy as PSIStrategy)) {
+    if (
+      strategy &&
+      Object.values(PSIStrategy).includes((strategy as string).toLocaleLowerCase() as PSIStrategy)
+    ) {
       chosenStartegy = strategy as PSIStrategy;
     }
     const { urls, alertConfig } = config;
