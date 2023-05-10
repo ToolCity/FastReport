@@ -85,10 +85,7 @@ export const sendAlertMail = async (
 ) => {
   try {
     if (!alertConfig) {
-      return {
-        message: 'Alert config not found, generate one by /POST to /alert',
-        failed: true,
-      };
+      throw new Error('Alert config not found, generate one by /POST to /alert');
     }
     const { email } = alertConfig;
     if (!email.enabled) {
@@ -97,10 +94,7 @@ export const sendAlertMail = async (
       };
     }
     if (!email.id) {
-      return {
-        message: 'Email in alertConfig not found, add one by /PATCH to /alert',
-        failed: true,
-      };
+      throw new Error('Email id not found in alertConfig, add one by /PATCH to /alert');
     }
     let alertResults: Record<string, any> | null = null;
     if (onlyAlertIfBelowBaseline) {
@@ -143,15 +137,9 @@ export const sendAlertMail = async (
         html,
       };
     } catch (e) {
-      return {
-        message: `Error : while sending email-alert : ${(e as Error).message}`,
-        html,
-      };
+      throw new Error('Error while sending email-alert');
     }
   } catch (e) {
-    return {
-      message: `Error : while sending email-alert : ${(e as Error).message}`,
-      failed: true,
-    };
+    throw new Error(`Error while sending email-alert: ${e}`);
   }
 };
