@@ -2,31 +2,15 @@
 <html lang="en">
 
 <head>
-
-    <!-- Basic Page Needs
-    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <meta charset="utf-8">
     <title>FastReport</title>
     <meta name="description" content="">
     <meta name="author" content="">
-
-    <!-- Mobile Specific Metas
-    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- FONT
-    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
-
-    <!-- CSS
-    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/skeleton.css">
-
-    <!-- Favicon
-    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
     <link rel="icon" type="image/png" href="images/favicon.png">
-
 </head>
 
 <body>
@@ -54,7 +38,6 @@
 <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"
     integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+"
     crossorigin="anonymous"></script>
-<!-- <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script> -->
 <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
 <script type="text/javascript">
     const socket = io('http://localhost:5000', {
@@ -113,10 +96,19 @@
         setJSONInnerHTML('configs', json, url);
         return json;
     };
+    const getCurrentDateAndTime = () => {
+        const currentdate = new Date();
+        return currentdate.getDate() + "/"
+            + (currentdate.getMonth() + 1) + "/"
+            + currentdate.getFullYear() + " @ "
+            + currentdate.getHours() + ":"
+            + currentdate.getMinutes() + ":"
+            + currentdate.getSeconds();
+    }
 
     const setJSONInnerHTML = (id, json, api = "api", showResponse = true) => {
         const prevHTML = document.getElementById(id).innerHTML;
-        document.getElementById(id).innerHTML = (`<h5>‣ ${api}</h5>` + (showResponse ? `<pre class="prettyprint">${JSON.stringify(json, null, 4)}</pre>` : '') + prevHTML);
+        document.getElementById(id).innerHTML = (`<h5>‣ ${api} ${getCurrentDateAndTime()}</h5>` + (showResponse ? `<pre class="prettyprint">${JSON.stringify(json, null, 4)}</pre>` : '') + prevHTML);
     };
 
 </script>
