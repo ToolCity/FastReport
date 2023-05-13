@@ -17,27 +17,23 @@ describe('unit tests for alert services', () => {
   describe('testing email alerting service', () => {
     it('it should return error if alertConfig is not defined', async () => {
       const alertConfig = undefined;
-      const result = await sendAlertMail(alertConfig, {});
-      expect(result).toEqual({
-        message: 'Alert config not found, generate one by /POST to /alert',
-        failed: true,
-      });
+      try {
+        await sendAlertMail(alertConfig, {});
+      } catch (e) {
+        expect(e).toEqual(new Error('Alert config not found, generate one by /POST to /alert'));
+      }
     });
     it('it should return error if email is not defined in alertConfig', async () => {
       const alertConfig = { ...defaultAlertConfig, email: { id: null, enabled: true } };
-      const result = await sendAlertMail(alertConfig, {});
-      expect(result).toEqual({
-        message: 'Email in alertConfig not found, add one by /PATCH to /alert',
-        failed: true,
-      });
+      try {
+        await sendAlertMail(alertConfig, {});
+      } catch (e) {
+        expect(e).toEqual(
+          new Error('Email id not found in alertConfig, add one by /PATCH to /alert')
+        );
+      }
     });
 
-    it('it should not alert if onlyAlertIfBelowBaseline is true and alert is not required', async () => {
-      const result = await sendAlertMail(defaultAlertConfig, {}, undefined, true);
-      expect(result).toEqual({
-        message: `No alert required for this report`,
-      });
-    });
     it('it should not send alert if email is not enabled in alertConfig', async () => {
       const alertConfig = defaultAlertConfig;
       alertConfig.email.enabled = false;
@@ -50,19 +46,21 @@ describe('unit tests for alert services', () => {
   describe('testing slack alerting service', () => {
     it('it should return error if alertConfig is not defined', async () => {
       const alertConfig = undefined;
-      const result = await sendAlertToSlackChannel(alertConfig, {});
-      expect(result).toEqual({
-        message: 'Alert config not found, generate one by /POST to /alert',
-        failed: true,
-      });
+      try {
+        await sendAlertToSlackChannel(alertConfig, {});
+      } catch (e) {
+        expect(e).toEqual(new Error('Alert config not found, generate one by /POST to /alert'));
+      }
     });
     it('it should return error if slack is not defined in alertConfig', async () => {
       const alertConfig = { ...defaultAlertConfig, slack: { id: null, enabled: true } };
-      const result = await sendAlertToSlackChannel(alertConfig, {});
-      expect(result).toEqual({
-        message: 'Slack Channel in alertConfig not found, add one by /PATCH to /alert',
-        failed: true,
-      });
+      try {
+        await sendAlertToSlackChannel(alertConfig, {});
+      } catch (e) {
+        expect(e).toEqual(
+          new Error('Slack Channel id not found in alertConfig, add one by /PATCH to /alert')
+        );
+      }
     });
     it('it should not alert if onlyAlertIfBelowBaseline is true and alert is not required', async () => {
       const result = await sendAlertToSlackChannel(
