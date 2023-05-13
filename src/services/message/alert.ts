@@ -32,8 +32,7 @@ export const alertMessageHandler = async (message: Message, cb: (err?: Error) =>
     const emailAlertStatus = await sendAlertMail(
       alertConfig as Record<string, unknown>,
       result as Record<string, unknown>,
-      chosenStartegy as PSIStrategy,
-      onlyAlertIfBelowBaseline
+      chosenStartegy as PSIStrategy
     );
     const slackAlertStatus = await sendAlertToSlackChannel(
       alertConfig as Record<string, unknown>,
