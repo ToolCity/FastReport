@@ -53,7 +53,6 @@ export const compareMessageHandler = async (message: Message, cb: (err?: Error) 
       clientId
     );
 
-    //TODO: push the data to alert queue
     await createQueue(ALERT_QUEUE_NAME);
     const cmessage = createMessage(
       { result, alertConfig, chosenStartegy, clientId },
