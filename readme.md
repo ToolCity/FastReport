@@ -8,7 +8,7 @@
 - Get a complete score report and alerts on email and slack by just calling a single endpoint.
 - Detect what changes are causing the performance drops by adding the tool to your CI/CD workflows.
 - Easy to use Web UI for querying config and triggering tests.
-- Open source, reliable and ready to self host. 🚀
+- Open source, reliable, scalable, ready to self host. 🚀
 
 ## Sample alerts
 
@@ -125,3 +125,15 @@ export const configStore = [
   checkout_branch('not-main')
   open_pr('issue-id')
 ```
+
+## Simple Architecture
+
+The tool internally uses message queue to handle the flow of a test suite, the message passes through three different queues:
+
+- trigger ‣ fetches lighthouse scores
+- compare ‣ compares latest scores with baseline config
+- alert ‣ sends alerts to different channels based on alert config
+
+This queue system makes the system performant, reliable (retrying unacknowledged/failed messages) and scalable, the three services are decoupled and makes the system flexible to adapt changes easily.
+
+![slack-report.png](./docs/fast-report.png)
