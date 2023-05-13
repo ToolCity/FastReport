@@ -64,7 +64,7 @@ export const compareMessageHandler = async (message: Message, cb: (err?: Error) 
     if (socketId) io.to(socketId).emit('status', messageStatus);
     else console.log('socket connection not found, unable to notify client');
     cb();
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.log('Error occured in compareMessageHandler', e);
     messageStatus = setMessageStatus(
       msgId,
@@ -76,6 +76,6 @@ export const compareMessageHandler = async (message: Message, cb: (err?: Error) 
       clientId
     );
     if (socketId) io.to(socketId).emit('status', messageStatus);
-    cb(e);
+    cb(e as Error);
   }
 };

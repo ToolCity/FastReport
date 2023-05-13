@@ -63,7 +63,7 @@ export const alertMessageHandler = async (message: Message, cb: (err?: Error) =>
       }
     } else console.log('socket connection not found, unable to notify client');
     cb();
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.log('Error occured in alertMessageHandler', e);
     messageStatus = setMessageStatus(
       msgId,
@@ -75,6 +75,6 @@ export const alertMessageHandler = async (message: Message, cb: (err?: Error) =>
       clientId
     );
     if (socketId) io.to(socketId).emit('status', messageStatus);
-    cb(e);
+    cb(e as Error);
   }
 };
