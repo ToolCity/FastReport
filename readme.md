@@ -4,11 +4,11 @@
 
 ## Features
 
-- Define your test suites with multiple urls and baseline configs
+- Define your test suites with multiple urls and baseline configs.
 - Get a complete score report and alerts on email and slack by just calling a single endpoint.
 - Detect what changes are causing the performance drops by adding the tool to your CI/CD workflows.
-- Easy to use Web UI [coming soon]
-- Open source, Highly customisable 🚀
+- Easy to use Web UI for querying config and triggering tests.
+- Open source, reliable and ready to self host. 🚀
 
 ## Sample alerts
 
@@ -106,4 +106,22 @@ export const configStore = [
     },
   },
 ];
+```
+
+## Contributing guide
+
+<i>Every contribution counts!</i>
+
+1. Create a fork and checkout a branch different from main
+2. Create an issue if the issue you are trying to solve does not exists.
+3. Open a PR and wait for review.
+
+```python
+  if not issue_exists:
+    open_issue()
+
+  assign_issue('yourself')
+  create_fork()
+  checkout_branch('not-main')
+  open_pr('issue-id')
 ```
