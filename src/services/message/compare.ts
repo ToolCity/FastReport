@@ -53,7 +53,6 @@ export const compareMessageHandler = async (message: Message, cb: (err?: Error) 
       clientId
     );
 
-    //TODO: push the data to alert queue
     await createQueue(ALERT_QUEUE_NAME);
     const cmessage = createMessage(
       { result, alertConfig, chosenStartegy, clientId },
@@ -64,7 +63,7 @@ export const compareMessageHandler = async (message: Message, cb: (err?: Error) 
     if (socketId) io.to(socketId).emit('status', messageStatus);
     else console.log('socket connection not found, unable to notify client');
     cb();
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.log('Error occured in compareMessageHandler', e);
     messageStatus = setMessageStatus(
       msgId,
@@ -76,6 +75,6 @@ export const compareMessageHandler = async (message: Message, cb: (err?: Error) 
       clientId
     );
     if (socketId) io.to(socketId).emit('status', messageStatus);
-    cb(e);
+    cb(e as Error);
   }
 };

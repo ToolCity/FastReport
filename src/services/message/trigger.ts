@@ -80,7 +80,7 @@ export const triggerMessageHandler = async (message: Message, cb: (err?: Error) 
     if (socketId) io.to(socketId).emit('status', messageStatus);
     else console.log('socket connection not found, unable to notify client');
     cb();
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error('Error occured in triggerMessageHandler', e);
     messageStatus = setMessageStatus(
       msgId,
@@ -93,6 +93,6 @@ export const triggerMessageHandler = async (message: Message, cb: (err?: Error) 
     );
 
     if (socketId) io.to(socketId).emit('status', messageStatus);
-    cb(e);
+    cb(e as Error);
   }
 };

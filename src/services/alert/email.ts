@@ -80,8 +80,7 @@ const generateHTMLReport = (
 export const sendAlertMail = async (
   alertConfig: Record<string, any> | undefined,
   result: Record<string, any>,
-  chosenStartegy: PSIStrategy = defaultStrategy,
-  onlyAlertIfBelowBaseline = false
+  chosenStartegy: PSIStrategy = defaultStrategy
 ) => {
   try {
     if (!alertConfig) {
@@ -96,36 +95,12 @@ export const sendAlertMail = async (
     if (!email.id) {
       throw new Error('Email id not found in alertConfig, add one by /PATCH to /alert');
     }
-    let alertResults: Record<string, any> | null = null;
-    if (onlyAlertIfBelowBaseline) {
-      for (const url in result) {
-        if (result[url].failed) {
-          continue;
-        }
-        for (const category in result[url]) {
-          if (result[url][category].failed) {
-            continue;
-          }
-          if (result[url][category].alertRequired) {
-            if (!alertResults) {
-              alertResults = {};
-            }
-            alertResults[url] = {
-              ...alertResults[url],
-              [category]: result[url][category],
-            };
-          }
-        }
-      }
-    } else {
-      alertResults = result;
-    }
-    if (!alertResults) {
+    if (!result) {
       return {
         message: `No alert required for this report`,
       };
     }
-    const html = generateHTMLReport(alertResults, chosenStartegy);
+    const html = generateHTMLReport(result, chosenStartegy);
     const mailOptions = {
       to: email.id,
       html,

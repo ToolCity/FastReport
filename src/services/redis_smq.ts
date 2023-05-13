@@ -71,19 +71,13 @@ export const createMessage = (body: unknown, queueName: string) => {
 
 export const runConsumer = (consumer: Consumer) => {
   return new Promise((resolve, reject) => {
-    console.log('Running consumer');
-    consumer.run((err, status) => {
+    consumer.run((err, reply) => {
       if (err) reject(err);
-      if (status) {
-        consumer.shutdown((err, reply) => {
-          if (err) reject(err);
-          console.log('Consumer shutdown');
-          resolve(reply);
-        });
-      }
+      resolve(reply);
     });
   });
 };
+
 export const setupConsumers = async (
   queueName: string,
   messageHandler: (message: Message, cb: (err?: Error) => void) => Promise<void>,
