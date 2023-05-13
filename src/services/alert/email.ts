@@ -115,6 +115,6 @@ export const sendAlertMail = async (
       throw new Error('Error while sending email-alert');
     }
   } catch (e) {
-    throw new Error(`Error while sending email-alert: ${e}`);
+    throw e;
   }
 };
