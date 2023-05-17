@@ -8,7 +8,7 @@ async function run(): Promise<void> {
       throw new Error('apiKey is required');
     }
     // trigger a lighthouse report check
-    const response = await axios.get(`http://127.0.0.1:5000/api/trigger?apiKey=${apiKey}`);
+    const response = await axios.get(`127.0.0.1:5000/api/trigger?apiKey=${apiKey}`);
     if (response.status !== 200) {
       throw new Error('Failed to trigger report check');
     }
