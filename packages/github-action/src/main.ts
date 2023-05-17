@@ -1,4 +1,5 @@
 import * as core from '@actions/core';
+import axios from 'axios';
 
 async function run(): Promise<void> {
   try {
@@ -7,11 +8,10 @@ async function run(): Promise<void> {
       throw new Error('apiKey is required');
     }
     // trigger a lighthouse report check
-    const report = await fetch(`http://localhost:5000/api/trigger?apiKey=${apiKey}`);
-    if (report.status !== 200) {
+    const response = await axios.get(`http://localhost:5000/api/trigger?apiKey=${apiKey}`);
+    if (response.status !== 200) {
       throw new Error('Failed to trigger report check');
     }
-    const response = await report.json();
     core.debug('Triggered report check');
     core.setOutput('response', response);
   } catch (error) {
