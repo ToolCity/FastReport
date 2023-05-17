@@ -4,6 +4,7 @@ on: # rebuild any PRs and main branch changes
   push:
     branches:
       - main
+      - github-action
       - 'releases/*'
 
 jobs:
@@ -12,13 +13,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: |
-          npm install
+          cd packages/github-action && npm install
       - run: |
-          npm run all
-  test: # make sure the action works on a clean machine without building
+          cd packages/github-action && npm run all
+
+  fastReport: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: ./packages/github-action
         with:
-          milliseconds: 1000
+          apiKey: DA0524CF-3073-4346-ACDA-F5816650FE8A
