@@ -52,12 +52,12 @@ function run() {
                 throw new Error('apiKey is required');
             }
             // trigger a lighthouse report check
-            const response = yield axios_1.default.get(`http://localhost:5000/api/trigger?apiKey=${apiKey}`);
+            const response = yield axios_1.default.get(`http://127.0.0.1:5000/api/trigger?apiKey=${apiKey}`);
             if (response.status !== 200) {
                 throw new Error('Failed to trigger report check');
             }
             core.debug('Triggered report check');
-            core.setOutput('response', response);
+            core.setOutput('response', response.data);
         }
         catch (error) {
             if (error instanceof Error)
