@@ -13,13 +13,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: |
-          cd packages/github-action
+          cd packages/github-action && npm install
       - run: |
-          npm install
-      - run: |
-          npm run all
+          cd packages/github-action && npm run all
   fastReport: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - uses: actions/checkout@v3
       - uses: ./packages/github-action
