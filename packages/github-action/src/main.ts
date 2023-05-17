@@ -1,17 +1,19 @@
 import * as core from '@actions/core';
-import { wait } from './wait';
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds');
-    core.debug('Hello world!');
-    core.debug(`Waiting ${ms} milliseconds ...`); // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
-
-    core.debug(new Date().toTimeString());
-    await wait(parseInt(ms, 10));
-    core.debug(new Date().toTimeString());
-
-    core.setOutput('time', new Date().toTimeString());
+    const apiKey: string = core.getInput('apiKey');
+    if (!apiKey) {
+      throw new Error('apiKey is required');
+    }
+    // trigger a lighthouse report check
+    const report = await fetch(`http://localhost:5000/api/trigger?apiKey=${apiKey}`);
+    if (report.status !== 200) {
+      throw new Error('Failed to trigger report check');
+    }
+    const response = await report.json();
+    core.debug('Triggered report check');
+    core.setOutput('response', response);
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message);
   }
