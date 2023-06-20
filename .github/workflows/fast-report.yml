@@ -35,6 +35,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Check env variables
+        run: echo ${{ secrets.SLACK_CHANNEL_URL }}
+
       - name: Build the stack
         run: cd packages/fast-report && docker-compose up -d
 
