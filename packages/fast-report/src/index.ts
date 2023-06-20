@@ -23,8 +23,12 @@ app.get('/', (req: Request, res: Response) => {
 const server = http.createServer(app);
 
 server.listen(PORT, async () => {
-  await initialiseRedisQueueManager();
-  console.log(`Server is running on port ${PORT}.`);
+  try {
+    await initialiseRedisQueueManager();
+    console.log(`Server is running on port ${PORT}.`);
+  } catch (e) {
+    console.error(e);
+  }
 });
 
 server.setTimeout(1000 * 60 * 2);

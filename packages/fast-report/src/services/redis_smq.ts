@@ -5,11 +5,11 @@ const defaultNumberOfConsumers = Number(process.env.REDIS_NUMBER_OF_QUEUE_CONSUM
 
 export const initialiseRedisQueueManager = (): Promise<QueueManager | undefined> => {
   return new Promise((resolve, reject) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     QueueManager.createInstance(config, (err, queueManager) => {
-      if (err) reject(err);
-      else resolve(queueManager);
+      if (err) {
+        console.error('Error creating queue manager : ', err);
+        reject(err);
+      } else resolve(queueManager);
     });
   });
 };
@@ -44,7 +44,7 @@ export const createQueue = async (queueName: string) => {
 
 export const produceMessage = (message: Message) => {
   return new Promise((resolve, reject) => {
-    const producer = new Producer();
+    const producer = new Producer(config);
     producer.run(err => {
       if (err) reject(err);
       producer.produce(message, err => {
@@ -86,7 +86,7 @@ export const setupConsumers = async (
   await createQueue(queueName);
   const consumers = [];
   for (let i = 0; i < numberOfConsumers; i++) {
-    const consumer = new Consumer();
+    const consumer = new Consumer(config);
     consumer.consume(queueName, messageHandler, err => {
       if (err) throw err;
     });

@@ -1,5 +1,5 @@
-import { RedisClientName, TRedisConfig } from 'redis-smq-common/dist/types';
 import { config as dotenvConfig } from 'dotenv';
+import { IConfig } from 'redis-smq/dist/types';
 dotenvConfig();
 const host = process.env.REDIS_HOST;
 const port = process.env.REDIS_PORT;
@@ -11,7 +11,6 @@ export const ALERT_QUEUE_NAME = 'alert_queue';
 
 export default {
   redis: {
-    client: RedisClientName.REDIS_V4,
     options: {
       host,
       port,
@@ -27,4 +26,4 @@ export default {
   messages: {
     store: false,
   },
-} as unknown as TRedisConfig;
+} as unknown as IConfig;
