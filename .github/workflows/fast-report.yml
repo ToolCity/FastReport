@@ -19,7 +19,7 @@ jobs:
   setup:
     needs: build
     runs-on: ubuntu-latest
-    enviornment: fast-report
+    environment: fast-report
     env:
       PSI_API_KEY: ${{ secrets.PSI_API_KEY }}
       SLACK_CHANNEL_URL: ${{ secrets.SLACK_CHANNEL_URL }}
