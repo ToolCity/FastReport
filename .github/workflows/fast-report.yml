@@ -19,7 +19,7 @@ jobs:
   fast-report:
     needs: build
     runs-on: ubuntu-latest
-    environment: fast-report
+    environment: Fast-report
     env:
       PSI_API_KEY: ${{ secrets.PSI_API_KEY }}
       SLACK_CHANNEL_URL: ${{ secrets.SLACK_CHANNEL_URL }}
@@ -33,11 +33,12 @@ jobs:
       REDIS_NUMBER_OF_QUEUE_CONSUMERS: ${{ secrets.REDIS_NUMBER_OF_QUEUE_CONSUMERS }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+
       - name: Build the stack
         run: cd packages/fast-report && docker-compose up -d
 
-      - uses: actions/checkout@v3
-      - uses: ./packages/github-action
+      - name: Trigger report
+        uses: packages/github-action
         with:
           apiKey: DA0524CF-3073-4346-ACDA-F5816650FE8A
