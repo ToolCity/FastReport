@@ -1,0 +1,32 @@
+name: 'build-test'
+on: # rebuild any PRs and main branch changes
+  pull_request:
+  push:
+    branches:
+      - main
+      - github-action
+      - 'releases/*'
+
+jobs:
+  build: # make sure build/ci work properly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          cd packages/github-action && npm install
+      - run: |
+          cd packages/github-action && npm run all
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build the stack
+        run: cd packages/fast-report && docker-compose up -d
+
+  fastReport: # make sure the action works on a clean machine without building
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./packages/github-action
+        with:
+          apiKey: DA0524CF-3073-4346-ACDA-F5816650FE8A

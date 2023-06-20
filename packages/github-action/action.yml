@@ -2,10 +2,10 @@ name: 'Fast-report'
 description: 'Lighthouse scores comparisions with baseline'
 author: 'ToolCity'
 inputs:
-  milliseconds: # change this
+  apiKey: # change this
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: 'api key to trigger lighthouse tests'
+    default: 'DA0524CF-3073-4346-ACDA-F5816650FE8A'
 runs:
   using: 'node16'
   main: 'dist/index.js'

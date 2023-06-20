@@ -1,0 +1,19 @@
+node_modules
+
+.git
+.svn
+.hg
+
+.DS*Store
+*.swp
+\_.swo
+
+_.log
+_.tmp
+\*.bak
+
+.idea/ # IntelliJ IDEA IDE files
+.vscode/ # Visual Studio Code IDE files
+
+_.md
+_.txt
