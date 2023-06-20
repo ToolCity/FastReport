@@ -19,17 +19,18 @@ jobs:
   setup:
     needs: build
     runs-on: ubuntu-latest
+    enviornment: fast-report
     env:
-      PSI_API_KEY: ${{ env.PSI_API_KEY }}
-      SLACK_CHANNEL_URL: ${{ env.SLACK_CHANNEL_URL }}
-      EMAIL_HOST: ${{ env.EMAIL_HOST }}
-      EMAIL_PORT: ${{ env.EMAIL_PORT }}
-      EMAIL_USER: ${{ env.EMAIL_USER }}
-      EMAIL_PASS: ${{ env.EMAIL_PASS }}
-      EMAIL_FROM: ${{ env.EMAIL_FROM }}
-      REDIS_HOST: ${{ env.REDIS_HOST }}
-      REDIS_PORT: ${{ env.REDIS_PORT }}
-      REDIS_NUMBER_OF_QUEUE_CONSUMERS: ${{ env.REDIS_NUMBER_OF_QUEUE_CONSUMERS }}
+      PSI_API_KEY: ${{ secrets.PSI_API_KEY }}
+      SLACK_CHANNEL_URL: ${{ secrets.SLACK_CHANNEL_URL }}
+      EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+      EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+      EMAIL_USER: ${{ secrets.EMAIL_USER }}
+      EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+      EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+      REDIS_HOST: ${{ secrets.REDIS_HOST }}
+      REDIS_PORT: ${{ secrets.REDIS_PORT }}
+      REDIS_NUMBER_OF_QUEUE_CONSUMERS: ${{ secrets.REDIS_NUMBER_OF_QUEUE_CONSUMERS }}
 
     steps:
       - uses: actions/checkout@v2
