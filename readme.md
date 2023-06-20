@@ -23,15 +23,26 @@
 ## Requirements
 
 1. Must have node installed v16 or above
-2. Must have redis installed, tool internally uses redis-smq.
+2. Must have redis installed if you want to setup locally, tool internally uses redis-smq.
 
 ## Usage guide
 
-### Setup
+### Configuration
 
 - Create a `.env` file by copying contents from `sample.env` and provide the required env variables.
 - Set the config for your website in the `store/index.ts` file, add the urls you want to test and set a baseline score for different urls based on devices, set alert config for email and slack. Sample config below to use as a reference.
+
+### Setup
+
+1. Using server
+
+- Start the local `redis-server`
 - Start the server : `npm run build` and `node dist/index.js`.
+
+2. Using docker (Recommended)
+
+- Make sure docker is installed
+- Run : `docker compose up`
 
 ### Triggering tests
 
