@@ -37,11 +37,7 @@ jobs:
       - name: Build the stack
         run: cd packages/fast-report && docker-compose up -d
 
-  fastReport: # make sure the action works on a clean machine without building
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+      - name: fast-report
       - uses: ./packages/github-action
         with:
           apiKey: DA0524CF-3073-4346-ACDA-F5816650FE8A
