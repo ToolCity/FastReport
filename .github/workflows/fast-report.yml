@@ -39,6 +39,6 @@ jobs:
         run: cd packages/fast-report && docker-compose up -d
 
       - name: Trigger report
-        uses: packages/github-action
+        uses: ./packages/github-action
         with:
           apiKey: DA0524CF-3073-4346-ACDA-F5816650FE8A
